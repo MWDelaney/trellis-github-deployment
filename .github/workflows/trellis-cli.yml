@@ -14,11 +14,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    # Optional sage build, should be refactored into separate workflow
     - uses: actions/setup-node@v2
       with:
         node-version: '16'
         cache: yarn
-        cache-dependency-path: site/web/app/themes/carlow-2021/yarn.lock
+        cache-dependency-path: site/web/app/themes/example.com/yarn.lock
+
+    - uses: andstor/file-existence-action@v2
+      id: check_files
+      with:
+        files: "trellis/deploy.yml"
     - uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
@@ -31,4 +38,5 @@ jobs:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         ansible-vault-password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
     - name: Deploy
+      if: steps.check_files.outputs.files_exists == 'true'
       run: trellis deploy ${{ github.ref_name }}

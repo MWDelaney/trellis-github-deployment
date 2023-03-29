@@ -8,11 +8,5 @@ on:
 
 jobs:
   deploy:
-    steps:
-      - uses: andstor/file-existence-action@v2
-        id: check_files
-        with:
-          files: "trellis/deploy.yml"
-      - uses: ./.github/workflows/trellis-cli.yml
-        if: steps.check_files.outputs.files_exists == 'true'
-        secrets: inherit
+    uses: ./.github/workflows/trellis-cli.yml
+    secrets: inherit
