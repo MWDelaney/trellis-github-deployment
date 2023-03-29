@@ -21,7 +21,7 @@ jobs:
     #   with:
     #     node-version: '16'
     #     cache: yarn
-    #     cache-dependency-path: site/web/app/themes/sageyarn.lock
+    #     cache-dependency-path: site/web/app/themes/sage/yarn.lock
 
     - uses: andstor/file-existence-action@v2
       id: check_files
