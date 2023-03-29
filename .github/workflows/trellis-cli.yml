@@ -11,7 +11,7 @@ on:
 jobs:
   trellis-cli:
     runs-on: ubuntu-latest
-    if: secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY != ''
+    if: github.repository != 'MWDelaney/trellis-template'
 
     steps:
     - uses: actions/checkout@v2
