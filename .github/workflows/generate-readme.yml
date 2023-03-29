@@ -3,7 +3,7 @@ name: Generate README
 on: [push]
 
 jobs:
-  check-version:
+  generate-readme:
     runs-on: ubuntu-latest
     if: github.repository != 'MWDelaney/trellis-template'
     steps:

@@ -1,5 +1,5 @@
-name: Deploy to Production
-run-name: Deploy to Production
+name: Deploy to production
+run-name: Deploy to production
 
 on:
   workflow_dispatch:
