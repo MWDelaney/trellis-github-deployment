@@ -9,4 +9,4 @@
 1) Clone this repository locally
 2) Run `trellis new trellis-template`
 3) Run `trellis key generate`
-4) Document the new private key, commit the new files.
+4) Document the new keys, commit the new files.
