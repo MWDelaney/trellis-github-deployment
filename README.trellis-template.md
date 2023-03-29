@@ -16,7 +16,8 @@
 1) Clone this repository locally
 2) Run `trellis new trellis-template`
 3) Run `trellis key generate`
-4) Document the new keys, commit the new files.
+4) Run `trellis vault encrypt`
+4) Document the new keys, document the `trellis/.vault_pass` file, commit the new files.
 
 </details>
 
