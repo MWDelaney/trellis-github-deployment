@@ -1,4 +1,4 @@
-# Trellis Template
+# trellis-template
 
 [![Deploy to staging](https://github.com/RebelInteractiveGroup/trellis-template/actions/workflows/deploy-staging.yml/badge.svg?branch=staging)](https://github.com/RebelInteractiveGroup/trellis-template/actions/workflows/deploy-staging.yml)
 
