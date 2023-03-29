@@ -7,7 +7,7 @@
 ## System Requirements
 
 * [Trellis CLI](https://github.com/roots/trellis-cli)
-
+* [Github CLI](https://cli.github.com)
 ## Development
 
 1) Clone this repository locally
