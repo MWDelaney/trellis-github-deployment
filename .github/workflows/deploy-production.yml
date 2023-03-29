@@ -8,6 +8,11 @@ on:
 
 jobs:
   deploy:
-    if: github.repository != 'MWDelaney/trellis-template'
-    uses: ./.github/workflows/trellis-cli.yml
-    secrets: inherit
+    steps:
+      - uses: andstor/file-existence-action@v2
+        id: check_files
+        with:
+          files: "trellis/deploy.yml"
+      - uses: ./.github/workflows/trellis-cli.yml
+        if: steps.check_files.outputs.files_exists == 'true'
+        secrets: inherit
