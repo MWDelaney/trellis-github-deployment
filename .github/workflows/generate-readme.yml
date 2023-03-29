@@ -61,8 +61,8 @@ jobs:
           target: "README.md"
 
       - name: Commit changes and delete this workflow
-        uses: EndBug/add-and-commit@v7
+        uses: EndBug/add-and-commit@v9
         with:
-          remove: '["./.github/workflows/generate-readme.yml", "./README.trellis-template.md"]'
+          remove: '["./.github/workflows/generate-readme.yml"]'
           message: "Trellis template complete 🌱"
           tag: 'v0.0.1 --force'
