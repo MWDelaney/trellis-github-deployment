@@ -8,5 +8,6 @@ on:
 
 jobs:
   deploy:
+    if: github.repository != 'MWDelaney/trellis-template'
     uses: ./.github/workflows/trellis-cli.yml
     secrets: inherit
