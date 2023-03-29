@@ -1,4 +1,4 @@
-# trellis-template
+# example.com
 
 [![Deploy to staging](https://github.com/RebelInteractiveGroup/trellis-template/actions/workflows/deploy-staging.yml/badge.svg?branch=staging)](https://github.com/RebelInteractiveGroup/trellis-template/actions/workflows/deploy-staging.yml)
 
@@ -14,7 +14,7 @@
 ## Setting up This Repository for the First Time
 
 1) Clone this repository locally
-2) Run `trellis new trellis-template && rellis key generate && trellis vault encrypt`
+2) Run `trellis new example.com && trellis key generate && trellis vault encrypt && mv README.md README.template.md && mv README.trellis-template.md README.md`
 3) Document the new keys, document the `trellis/.vault_pass` file, commit the new files.
 
 </details>
