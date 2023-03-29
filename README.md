@@ -8,12 +8,17 @@
 
 * [Trellis CLI](https://github.com/roots/trellis-cli)
 
-## Set up This Repository for the First Time
+<details>
+  <summary>Initial Setup</summary>
+
+## Setting up This Repository for the First Time
 
 1) Clone this repository locally
 2) Run `trellis new trellis-template`
 3) Run `trellis key generate`
 4) Document the new keys, commit the new files.
+
+</details>
 
 ## Development
 
