@@ -11,7 +11,6 @@ on:
 jobs:
   trellis-cli:
     runs-on: ubuntu-latest
-    if: github.repository != 'MWDelaney/trellis-template'
 
     steps:
     - uses: actions/checkout@v2
