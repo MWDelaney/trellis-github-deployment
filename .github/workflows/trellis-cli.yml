@@ -11,6 +11,7 @@ on:
 jobs:
   trellis-cli:
     runs-on: ubuntu-latest
+    if: secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY != ''
 
     steps:
     - uses: actions/checkout@v2
@@ -28,7 +29,6 @@ jobs:
         files: "trellis/deploy.yml"
     - uses: shimataro/ssh-key-action@v2
       with:
-        if: secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY != ''
         key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
         known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
     - uses: webfactory/ssh-agent@v0.5.4
