@@ -8,7 +8,7 @@ A basic set of Github workflows to perform the following Trellis chores and DevO
 ## System Requirements
 
 * [Trellis CLI](https://github.com/roots/trellis-cli)
-* [Github CLI](https://cli.github.com)
+* [GitHub CLI](https://cli.github.com)
 
 ## Setting up This Repository for the First Time
 
