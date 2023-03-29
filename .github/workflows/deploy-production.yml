@@ -1,0 +1,12 @@
+name: Deploy to Production
+run-name: Deploy to Production
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/trellis-cli.yml
+    secrets: inherit

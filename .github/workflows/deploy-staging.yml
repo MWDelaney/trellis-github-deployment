@@ -1,0 +1,12 @@
+name: Deploy to staging
+run-name: Deploy to staging
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [staging]
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/trellis-cli.yml
+    secrets: inherit

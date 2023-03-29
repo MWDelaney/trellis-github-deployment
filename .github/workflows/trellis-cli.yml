@@ -1,0 +1,35 @@
+# `setup-trellis-cli` action for deploying Trellis sites with optional Sage 10-based theme build
+##
+# Replace `sage` with your theme folder
+
+name: trellis-cli
+run-name: 'Trellis CLI'
+
+on:
+  workflow_call:
+
+jobs:
+  trellis-cli:
+    runs-on: ubuntu-latest
+    if: github.repository != 'MWDelaney/trellis-template'
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+        cache: yarn
+        cache-dependency-path: site/web/app/themes/carlow-2021/yarn.lock
+    - uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+        known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+    - uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+    - uses: roots/setup-trellis-cli@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        ansible-vault-password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+    - name: Deploy
+      run: trellis deploy ${{ github.ref_name }}
