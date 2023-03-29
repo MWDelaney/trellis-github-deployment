@@ -8,18 +8,6 @@
 
 * [Trellis CLI](https://github.com/roots/trellis-cli)
 
-<details>
-  <summary>Initial Setup</summary>
-
-## Setting up This Repository for the First Time
-
-1) Clone this repository locally
-2) Run `trellis new example.com && trellis key generate && trellis vault encrypt && mv README.md README.template.md && mv README.trellis-template.md README.md`
-3) Document the new keys, document the `trellis/.vault_pass` file, commit the new files.
-
-</details>
-
----
 ## Development
 
 1) Clone this repository locally
