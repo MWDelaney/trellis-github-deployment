@@ -4,9 +4,10 @@ on: [push]
 
 env:
   THEME_SLUG: sage
+  NODE_VERSION: '16'
 
 jobs:
-  lint:
+  yarn-lint:
 
     runs-on: ubuntu-latest
     defaults:
@@ -17,7 +18,7 @@ jobs:
     - name: Use Node.js 16
       uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: ${{env.NODE_VERSION}}
         cache: yarn
         cache-dependency-path: ./site/web/app/themes/${{env.THEME_SLUG}}/yarn.lock
 
