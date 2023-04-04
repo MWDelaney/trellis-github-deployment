@@ -1,9 +1,9 @@
-# .github/workflows/sage10-lint.yml
+# .github/workflows/sage10-build.yml
 #
 # This workflow presumes you're using Sage 10 and Trellis.
 # Edit the paths below if your environment differs
 
-name: Sage 10 Lint
+name: Sage 10 Build
 
 on: [push]
 
@@ -12,7 +12,7 @@ env:
   NODE_VERSION: '16'
 
 jobs:
-  yarn-lint:
+  yarn-build:
 
     runs-on: ubuntu-latest
     defaults:
@@ -28,4 +28,4 @@ jobs:
         cache-dependency-path: ./site/web/app/themes/${{env.THEME_SLUG}}/yarn.lock
 
     - run: yarn install
-    - run: yarn lint
+    - run: yarn build
