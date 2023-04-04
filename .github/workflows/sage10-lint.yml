@@ -1,0 +1,25 @@
+name: Sage 10 Lint
+
+on: [push]
+
+env:
+  THEME_SLUG: sage
+
+jobs:
+  lint:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./site/web/app/themes/${{env.THEME_SLUG}}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: yarn
+        cache-dependency-path: ./site/web/app/themes/${{env.THEME_SLUG}}/yarn.lock
+
+    - run: yarn install
+    - run: yarn lint

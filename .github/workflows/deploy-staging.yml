@@ -3,10 +3,12 @@ run-name: Deploy to staging
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
+    types: [closed]
     branches: [staging]
 
 jobs:
   deploy:
+    if: github.event.pull_request.merged == true
     uses: ./.github/workflows/trellis-cli.yml
     secrets: inherit
