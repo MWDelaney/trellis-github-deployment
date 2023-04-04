@@ -3,10 +3,11 @@ run-name: Deploy to production
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
+  pull_request:
+    types: [closed]
 
 jobs:
   deploy:
+    if: github.event.pull_request.merged == true
     uses: ./.github/workflows/trellis-cli.yml
     secrets: inherit

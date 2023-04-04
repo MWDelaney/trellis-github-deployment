@@ -13,5 +13,7 @@ A basic set of Github workflows to perform the following Trellis chores and DevO
 ## Setting up This Repository for the First Time
 
 1) Clone this repository locally
-2) Run `trellis new example.com && trellis key generate && trellis vault encrypt && gh secret set ANSIBLE_VAULT_PASSWORD -b $(cat trellis/.vault_pass) && mv README.md README.template.md && mv README.trellis-template.md README.md`
-3) Document the new keys, document the `trellis/.vault_pass` file, commit the new files.
+2) Run `trellis new . --force trellis vault encrypt && gh secret set ANSIBLE_VAULT_PASSWORD -b $(cat trellis/.vault_pass) && rm -f README.md && cp .github/README.trellis-template.md README.md`
+3) Create, provision staging and production servers, DNS entries, update `trellis/hosts` entries
+4) Run `trellis key generate` 
+5) Document the new keys, document the `trellis/.vault_pass` file, commit the new files.

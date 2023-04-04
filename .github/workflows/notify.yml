@@ -1,0 +1,19 @@
+# name: CI notify
+
+# # Only trigger, when the deploy workflow succeeded
+# on:
+#   workflow_run:
+#     workflows: ["Deploy to staging", "Deploy to production"]
+#     types:
+#       - completed
+#       - requested
+
+# jobs:
+#   notify:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v2
+
+#       - name: Notify Slack
+#         run: ...
