@@ -7,6 +7,10 @@ run-name: 'Trellis CLI'
 
 on:
   workflow_call:
+    inputs:
+      extra-vars:
+        required: false
+        type: string
 
 jobs:
   trellis-cli:
@@ -40,4 +44,4 @@ jobs:
         ansible-vault-password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
     - name: Deploy
       if: steps.check_files.outputs.files_exists == 'true'
-      run: trellis deploy ${{ github.ref_name }}
+      run: trellis deploy --extra-vars ${{ inputs.extra-vars }} ${{ github.ref_name }}
