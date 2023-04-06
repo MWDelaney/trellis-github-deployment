@@ -11,6 +11,7 @@ on:
       extra-vars:
         required: false
         type: string
+        default: ""
 
 jobs:
   trellis-cli:

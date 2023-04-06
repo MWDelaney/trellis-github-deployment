@@ -1,0 +1,22 @@
+name: Update README
+
+on: [push]
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    if: github.repository != 'MWDelaney/trellis-template'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Replace repository slug
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "trellis-template"
+          replace: ${{ github.event.repository.name }}
+          include: "README.md"
+          regex: false
+
+      - name: Commit changes and delete this workflow
+        uses: EndBug/add-and-commit@v7
+        with:
+          message: "Update README"
