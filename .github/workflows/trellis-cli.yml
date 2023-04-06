@@ -11,7 +11,10 @@ on:
       extra-vars:
         required: false
         type: string
-        default: ""
+        default: '""'
+      environment:
+        required: true
+        type: string
 
 jobs:
   trellis-cli:
@@ -19,7 +22,9 @@ jobs:
     if: github.repository != 'MWDelaney/trellis-template'
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.base.ref }}
 
     # Optional sage build, should be refactored into separate workflow
     # - uses: actions/setup-node@v2
@@ -45,4 +50,4 @@ jobs:
         ansible-vault-password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
     - name: Deploy
       if: steps.check_files.outputs.files_exists == 'true'
-      run: trellis deploy --extra-vars ${{ inputs.extra-vars }} ${{ github.ref_name }}
+      run: trellis deploy --extra-vars ${{ inputs.extra-vars }} ${{ inputs.environment }}

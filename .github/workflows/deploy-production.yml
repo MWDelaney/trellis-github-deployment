@@ -12,3 +12,5 @@ jobs:
     if: github.event.pull_request.merged == true
     uses: ./.github/workflows/trellis-cli.yml
     secrets: inherit
+    with:
+      environment: 'production'
