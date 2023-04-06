@@ -1,0 +1,32 @@
+# .github/workflows/sync-content-production-to-staging.yml
+
+name: Sync content (database and uploads) from production to staging
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync-content-production-to-staging:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site/scripts
+    steps:
+      - uses: actions/checkout@v3
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+      - uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+      - name: Setup WP-CLI
+        uses: godaddy-wordpress/setup-wp-cli@1
+      - run: |
+         chmod +x ./sync.sh
+         ./sync.sh production staging --unattended
+        shell: bash
