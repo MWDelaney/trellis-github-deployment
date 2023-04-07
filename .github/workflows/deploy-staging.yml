@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
     uses: ./.github/workflows/trellis-cli.yml
     secrets: inherit
     with:
