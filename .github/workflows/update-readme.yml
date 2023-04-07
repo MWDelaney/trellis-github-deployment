@@ -1,6 +1,7 @@
 name: Update README
 
-on: [push]
+on:
+  workflow_dispatch:
 
 jobs:
   update-readme:
