@@ -20,8 +20,18 @@ jobs:
   trellis-cli:
     runs-on: ubuntu-latest
     if: github.repository != 'MWDelaney/trellis-template'
-
     steps:
+
+    # Start a GitHub "deployment"
+    - name: start deployment
+      uses: bobheadxi/deployments@v1
+      id: deployment
+      with:
+        step: start
+        token: ${{ secrets.GITHUB_TOKEN }}
+        env: ${{ inputs.environment }}
+
+    # Checkout the repo
     - uses: actions/checkout@v3
       with:
         ref: ${{ github.event.pull_request.base.ref }}
@@ -31,23 +41,56 @@ jobs:
     #   with:
     #     node-version: '16'
     #     cache: yarn
-    #     cache-dependency-path: site/web/app/themes/sage/yarn.lock
+    #     cache-dependency-path: site/web/app/themes/voya/yarn.lock
 
+    # Check that the deploy.yml file exists, a reasonable check that this is a Trellis project
     - uses: andstor/file-existence-action@v2
       id: check_files
       with:
         files: "trellis/deploy.yml"
+
+    # Set up known hosts
     - uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
         known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+
+    # Set up SSH agent
     - uses: webfactory/ssh-agent@v0.5.4
       with:
         ssh-private-key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+
+    # Install Trellis CLI
     - uses: roots/setup-trellis-cli@v1
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         ansible-vault-password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+
+    # Run Trellis deploy
     - name: Deploy
       if: steps.check_files.outputs.files_exists == 'true'
       run: trellis deploy --extra-vars ${{ inputs.extra-vars }} ${{ inputs.environment }}
+
+    # install WP-CLI
+    - name: Setup WP-CLI
+      uses: godaddy-wordpress/setup-wp-cli@1
+
+    # Use WP CLI to get the site URL from the deployed site
+    - name: Get site URL
+      working-directory: site
+      id: site_url
+      run: |
+        echo "url=$(wp @"${{ inputs.environment }}" option get home)" >> $GITHUB_OUTPUT
+
+
+    # Finish the GitHub "deployment"
+    - name: Finalize deployment status
+      uses: bobheadxi/deployments@v1
+      if: always()
+      with:
+        step: finish
+        token: ${{ secrets.GITHUB_TOKEN }}
+        status: ${{ job.status }}
+        env: ${{ steps.deployment.outputs.env }}
+        env_url: ${{ steps.site_url.outputs.url }}
+        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
