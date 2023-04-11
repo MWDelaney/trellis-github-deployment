@@ -41,7 +41,7 @@ jobs:
     #   with:
     #     node-version: '16'
     #     cache: yarn
-    #     cache-dependency-path: site/web/app/themes/voya/yarn.lock
+    #     cache-dependency-path: site/web/app/themes/sage/yarn.lock
 
     # Check that the deploy.yml file exists, a reasonable check that this is a Trellis project
     - uses: andstor/file-existence-action@v2
