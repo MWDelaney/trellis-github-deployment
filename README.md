@@ -12,7 +12,7 @@ This project deploys to the `staging` and `production` environments when a `pull
 
 GitHub **Deployments** maintain a history of deployments and provide links to the current deployments in each.
 
-[See the current deployments](https://github.com/MWDelaney/example.com/deployments)
+[See the current deployments](https://github.com/MWDelaney/trellis-template/deployments)
 
 <details>
 <summary>Initial Setup</summary>
