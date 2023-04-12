@@ -12,8 +12,16 @@ jobs:
       - name: Replace repository slug
         uses: jacobtomlinson/gha-find-replace@v2
         with:
-          find: "trellis-template"
-          replace: ${{ github.event.repository.name }}
+          find: "MWDelaney/trellis-template"
+          replace: "${{ github.repository_owner }}/${{ github.event.repository.name }}"
+          include: "README.md"
+          regex: false
+
+      - name: Replace repository title
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "# trellis-template"
+          replace: "# ${{ github.event.repository.name }}"
           include: "README.md"
           regex: false
 

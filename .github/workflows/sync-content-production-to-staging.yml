@@ -1,9 +1,13 @@
 # .github/workflows/sync-content-production-to-staging.yml
 
-name: Sync content (database and uploads) from production to staging
+name: Sync content from production to staging
 
 on:
   workflow_dispatch:
+
+env:
+  FROM: production
+  TO: staging
 
 jobs:
   sync-content-production-to-staging:
@@ -11,22 +15,64 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: site/scripts
+        working-directory: ./site
     steps:
+
+      # Checkout the repo
       - uses: actions/checkout@v3
+
+      # Set up PHP
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
+
+      # Set up known hosts
       - uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+
+      # Set up SSH agent
       - uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+
+      # Install WP-CLI
       - name: Setup WP-CLI
         uses: godaddy-wordpress/setup-wp-cli@1
-      - run: |
-         chmod +x ./sync.sh
-         ./sync.sh production staging --unattended
+
+      # Use WP CLI to the "FROM" site info
+      - name: Get "from" site info
+        id: from_site
+        run: |
+          echo "url=$(wp @"${{ env.FROM }}" option get home)" >> $GITHUB_OUTPUT
+          echo "domain=$(wp @${{ env.FROM }} option get home | sed 's/https\?:\/\///')" >> $GITHUB_OUTPUT
+          echo "dir=/srv/www/${{ secrets.TRELLIS_SITE_SLUG }}/shared/uploads" >> $GITHUB_OUTPUT
+          echo "ssh_user=web" >> $GITHUB_OUTPUT
+
+      # Use WP CLI to get the "TO" site info
+      - name: Get "to" site info
+        id: to_site
+        run: |
+          echo "url=$(wp @"${{ env.TO }}" option get home)" >> $GITHUB_OUTPUT
+          echo "domain=$(wp @${{ env.FROM }} option get home | sed 's/https\?:\/\///')" >> $GITHUB_OUTPUT
+          echo "dir=/srv/www/${{ secrets.TRELLIS_SITE_SLUG }}/shared/uploads" >> $GITHUB_OUTPUT
+          echo "ssh_user=web" >> $GITHUB_OUTPUT
+
+      # Sync database with WP-CLI
+      - name: 🗃️ Sync database
+        run: |
+          wp "@${{ env.TO }}" db export --default-character-set=utf8mb4 &&
+          wp "@${{ env.TO }}" db reset --yes &&
+          wp "@${{ env.FROM }}" db export --default-character-set=utf8mb4 - | wp "@${{ env.TO }}" db import - &&
+          wp "@${{ env.TO }}" search-replace "${{ steps.from_site.outputs.url }}" "${{ steps.to_site.outputs.url }}" --all-tables-with-prefix
         shell: bash
+
+      # Sync uploads with ssh and rsync
+      - name: 🍱 Sync uploads
+        run: |
+          ssh -o ForwardAgent=yes ${{ steps.from_site.outputs.ssh_user }}@${{ steps.from_site.outputs.domain }} "rsync -aze 'ssh -o StrictHostKeyChecking=no' --progress ${{ steps.from_site.outputs.dir }} ${{ steps.to_site.outputs.ssh_user }}@${{ steps.to_site.outputs.domain }}:${{ steps.to_site.outputs.dir }}"
+
+      # Report success
+      - name: 🎉 Sync complete
+        run: echo "Sync complete!"
