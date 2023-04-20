@@ -82,7 +82,7 @@ jobs:
       run: |
         wp @"${{ inputs.environment }}" db export --default-character-set=utf8mb4 - > ./"${{ inputs.environment }}"-"$(date +'%Y-%m-%d-%H-%M-%S')".sql
 
-    # If this is the production create a release with the database export as an asset
+    # If this is the production environment, create a release with the database export as an asset
     - name: Create release
       if: ${{ inputs.environment == 'production' }}
       uses: actions/create-release@v1
@@ -95,7 +95,7 @@ jobs:
           Production database export
         draft: false
         prerelease: false
-        artifacts: ./*.sql
+        artifacts: ./site/*.sql
 
     # Use WP CLI to get the site URL from the deployed site
     - name: Get site URL
