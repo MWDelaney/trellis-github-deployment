@@ -37,7 +37,7 @@ jobs:
         ref: ${{ github.event.pull_request.base.ref }}
 
     # Optional sage build, should be refactored into separate workflow
-    # - uses: actions/setup-node@v2
+    # - uses: actions/setup-node@v3
     #   with:
     #     node-version: '16'
     #     cache: yarn
@@ -56,7 +56,7 @@ jobs:
         known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
 
     # Set up SSH agent
-    - uses: webfactory/ssh-agent@v0.5.4
+    - uses: webfactory/ssh-agent@v0.8.0
       with:
         ssh-private-key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
 
@@ -75,13 +75,34 @@ jobs:
     - name: Setup WP-CLI
       uses: godaddy-wordpress/setup-wp-cli@1
 
+    # If this is the production environment, export the database to a local file with the name of the environment and the date
+    - name: Export database
+      if: ${{ inputs.environment == 'production' }}
+      working-directory: site
+      run: |
+        wp @"${{ inputs.environment }}" db export --default-character-set=utf8mb4 - > ./"${{ inputs.environment }}"-"$(date +'%Y-%m-%d-%H-%M-%S')".sql
+
+    # If this is the production create a release with the database export as an asset
+    - name: Create release
+      if: ${{ inputs.environment == 'production' }}
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ inputs.environment }}-$(date +'%Y-%m-%d-%H-%M-%S')
+        release_name: ${{ inputs.environment }}-$(date +'%Y-%m-%d-%H-%M-%S')
+        body: |
+          Production database export
+        draft: false
+        prerelease: false
+        artifacts: ./*.sql
+
     # Use WP CLI to get the site URL from the deployed site
     - name: Get site URL
       working-directory: site
       id: site_url
       run: |
         echo "url=$(wp @"${{ inputs.environment }}" option get home)" >> $GITHUB_OUTPUT
-
 
     # Finish the GitHub "deployment"
     - name: Finalize deployment status

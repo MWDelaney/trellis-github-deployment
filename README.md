@@ -65,13 +65,7 @@ trellis key generate && gh secret set ANSIBLE_VAULT_PASSWORD -b $(cat trellis/.v
 Modify and run tun the following to provision your `staging` and `production` environments:
 
 ```bash
-trellis provision staging && trellis provision production && cd site && wp @staging core install --url=example.com --title="Example" --admin_user=admin --admin_email=admin@example.com && wp @production core install --url=example.com --title="Example" --admin_user=admin --admin_email=admin@example.com && cd ..
-```
-
-### 6. Create Git branches and commit project files
-
-```bash
-git add . && git commit -m "🎉 Initial commit" && git push && git checkout -b staging && git push --set-upstream origin staging
+git add . && git commit -m "🎉 Initial commit" && git push && trellis provision staging && trellis provision production && git checkout -b staging && git push --set-upstream origin staging && git checkout main && && trellis deploy staging && trellis deploy production && cd site && wp @staging core install --url=example.com --title="Example" --admin_user=admin --admin_email=admin@example.com && wp @production core install --url=example.com --title="Example" --admin_user=admin --admin_email=admin@example.com && cd ..
 ```
 
 </details>
