@@ -1,0 +1,110 @@
+name: 'Eject site for delivery'
+description: 'Eject Trellis site for delivery to traditional WordPress environments'
+
+inputs:
+  from:
+    description: 'The environment to sync from'
+    required: true
+
+  trellis_deploy_ssh_private_key:
+    description: 'The SSH private key to use for deployment'
+    required: true
+
+  trellis_deploy_ssh_known_hosts:
+    description: 'The SSH known hosts to use for deployment'
+    required: true
+
+  trellis_site_slug:
+    description: 'The Trellis site slug'
+    required: true
+
+  working_directory:
+    description: 'The working directory to use'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+
+    # Get the current date and time in both human-readable and machine-readable formats
+    - name: Get the date and time
+      shell: bash
+      id: get_date
+      run: |
+        echo "human_date: $(date +'%Y-%m-%d %H:%M:%S')"
+        echo "machine_date: $(date +'%Y%m%d%H%M%S')"
+        echo "human_date=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+        echo "machine_date=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+    # Set up PHP
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.0'
+
+    # Set up known hosts
+    - uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ inputs.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+        known_hosts: ${{ inputs.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+
+    # Set up SSH agent
+    - uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ inputs.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+
+    # Install WP-CLI
+    - name: Setup WP-CLI
+      uses: godaddy-wordpress/setup-wp-cli@1
+
+    # Use WP CLI to the "FROM" site info
+    - name: Get "from" site info
+      shell: bash
+      id: from_site
+      working-directory: ${{ inputs.WORKING_DIRECTORY }}
+      run: |
+        echo "url=$(wp @"${{ inputs.from }}" option get home)" >> $GITHUB_OUTPUT
+        echo "domain=$(wp @${{ inputs.from }} option get home | sed 's/https\?:\/\///')" >> $GITHUB_OUTPUT
+        echo "dir=/srv/www/${{ inputs.TRELLIS_SITE_SLUG }}/current/web/app" >> $GITHUB_OUTPUT
+        echo "ssh_user=web" >> $GITHUB_OUTPUT
+
+    # Install WP Search Replace CLI
+    - name: Install WP Search Replace CLI
+      shell: bash
+      run: composer global require andreekeberg/wp-search-replace-cli
+
+    # If this is the production environment, export the database to a local file with the name of the environment and the date
+    - name: 🗃️ Export database
+      shell: bash
+      working-directory: site
+      run: |
+        wp @"${{ inputs.from }}" db export --default-character-set=utf8mb4 - > ./${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}-trellis.sql
+
+    # Search-replace the database dump for app/uploads, replace with wp-content/uploads
+    - name: 🔎 Replace app/uploads with wp-content/uploads
+      shell: bash
+      working-directory: site
+      run: |
+        wp-search-replace --input=${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}-trellis.sql --output=${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}.sql --search='app/uploads' --replace='wp-content/uploads'
+
+    # Download the app directory from the production environment using rsync
+    - name: 📥 Download production wp-content directory
+      shell: bash
+      working-directory: site
+      run: |
+        rsync -Laz --progress --delete -e "ssh -o StrictHostKeyChecking=no" "${{ steps.from_site.outputs.ssh_user }}"@"${{ steps.from_site.outputs.domain }}":"${{ steps.from_site.outputs.dir }}"/ ./wp-content
+
+    # Zip the wp-content directory
+    - name: 🗜️ Compress wp-content directory
+      shell: bash
+      working-directory: site
+      run: |
+        zip -r wp-content.zip wp-content
+
+    # Attach the database dump and wp-content directory as artifacts to the workflow run
+    - name: 📤 Attach database dump and wp-content directory as artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ steps.from_site.outputs.domain }}-${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}
+        path: |
+          site/${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}.sql
+          site/wp-content.zip

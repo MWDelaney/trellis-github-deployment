@@ -7,10 +7,27 @@ on:
     types: [closed]
     branches: [main]
 
+env:
+  environment: production
+
 jobs:
-  deploy:
-    if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
-    uses: ./.github/workflows/trellis-cli.yml
-    secrets: inherit
-    with:
-      environment: 'production'
+  deploy-production:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repo
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      # Deploy site to production
+      - uses: ./.github/actions/trellis-cli
+        name: Deploy to production
+        if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.repository != 'MWDelaney/trellis-template'
+        with:
+          extra-vars: '""'
+          environment: ${{ env.environment }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          trellis_site_slug: ${{ secrets.TRELLIS_SITE_SLUG }}
+          trellis_deploy_ssh_private_key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+          trellis_deploy_ssh_known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+          ansible_vault_password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}

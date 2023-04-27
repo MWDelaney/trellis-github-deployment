@@ -1,0 +1,116 @@
+name: 'Trellis CLI Deployment'
+description: 'Deploys to a Trellis environment using the Trellis CLI'
+
+inputs:
+  extra-vars:
+    description: 'Extra variables to pass to Ansible'
+    required: true
+    default: '""'
+
+  environment:
+    description: 'The environment to deploy to'
+    required: true
+
+  github_token:
+    description: 'The GitHub token to use'
+    required: true
+
+  trellis_site_slug:
+    description: 'The Trellis site slug'
+    required: true
+
+  trellis_deploy_ssh_private_key:
+    description: 'The SSH private key to use for deployment'
+    required: true
+
+  trellis_deploy_ssh_known_hosts:
+    description: 'The SSH known hosts to use for deployment'
+    required: true
+
+  ansible_vault_password:
+    description: 'The Ansible vault password to use'
+    required: true
+
+
+runs:
+  using: 'composite'
+  steps:
+
+    # Start a GitHub "deployment"
+    - name: Start deployment
+      uses: bobheadxi/deployments@v1
+      id: deployment
+      with:
+        step: start
+        token: ${{ inputs.GITHUB_TOKEN }}
+        env: ${{ inputs.environment }}
+
+    # Optional sage build, should be refactored into separate workflow
+    # - uses: actions/setup-node@v3
+    #   with:
+    #     node-version: '16'
+    #     cache: yarn
+    #     cache-dependency-path: site/web/app/themes/sage/yarn.lock
+
+    # Check that the deploy.yml file exists, a reasonable check that this is a Trellis project
+    - uses: andstor/file-existence-action@v2
+      id: check_files
+      with:
+        files: "trellis/deploy.yml"
+
+    # Set up known hosts
+    - uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ inputs.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+        known_hosts: ${{ inputs.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+
+    # Set up SSH agent
+    - uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ inputs.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+
+    # Install Trellis CLI
+    - uses: roots/setup-trellis-cli@v1
+      with:
+        repo-token: ${{ inputs.GITHUB_TOKEN }}
+        ansible-vault-password: ${{ inputs.ANSIBLE_VAULT_PASSWORD }}
+
+    # Run Trellis deploy
+    - name: Deploy
+      shell: bash
+      if: steps.check_files.outputs.files_exists == 'true'
+      run: trellis deploy --extra-vars ${{ inputs.extra-vars }} ${{ inputs.environment }}
+
+    # install WP-CLI
+    - name: Setup WP-CLI
+      uses: godaddy-wordpress/setup-wp-cli@1
+
+    # Use WP CLI to get the site URL from the deployed site
+    - name: Get site URL
+      shell: bash
+      working-directory: site
+      id: site_url
+      run: |
+        echo "url=$(wp @"${{ inputs.environment }}" option get home)" >> $GITHUB_OUTPUT
+
+    # Call the new-release action to create a tag and/or release
+    - name: Create release
+      uses: ./.github/actions/new-release
+      with:
+        environment: ${{ inputs.environment }}
+        site_url: ${{ steps.site_url.outputs.url }}
+        ref: ${{ github.event.pull_request.base.ref }}
+        github_token: ${{ inputs.GITHUB_TOKEN }}
+        trellis_site_slug: ${{ inputs.TRELLIS_SITE_SLUG }}
+
+    # Finish the GitHub "deployment"
+    - name: Finalize deployment status
+      uses: bobheadxi/deployments@v1
+      if: always()
+      with:
+        step: finish
+        token: ${{ inputs.GITHUB_TOKEN }}
+        status: ${{ job.status }}
+        env: ${{ steps.deployment.outputs.env }}
+        env_url: ${{ steps.site_url.outputs.url }}
+        deployment_id: ${{ steps.deployment.outputs.deployment_id }}

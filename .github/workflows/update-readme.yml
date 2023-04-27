@@ -8,7 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository != 'MWDelaney/trellis-template'
     steps:
+
+      #Checkout the repo
       - uses: actions/checkout@v3
+
+      # Replace repository slug
       - name: Replace repository slug
         uses: jacobtomlinson/gha-find-replace@v2
         with:
@@ -17,6 +21,7 @@ jobs:
           include: "README.md"
           regex: false
 
+      # Replace repository title
       - name: Replace repository title
         uses: jacobtomlinson/gha-find-replace@v2
         with:
@@ -25,6 +30,7 @@ jobs:
           include: "README.md"
           regex: false
 
+      # Commit changes
       - name: Commit changes
         uses: EndBug/add-and-commit@v7
         with:

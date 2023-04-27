@@ -1,31 +1,28 @@
-# .github/workflows/sync-content-production-to-staging.yml
-
-name: Sync content from production to staging
+name: Eject production for delivery
+run-name: Eject production
 
 on:
   workflow_dispatch:
 
 env:
   from: production
-  to: staging
 
 jobs:
-  sync-content-production-to-staging:
+  eject-production:
 
     runs-on: ubuntu-latest
     steps:
+
       # Checkout the repo
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.base.ref }}
 
-      # Sync content from production to staging
-      - uses: ./.github/actions/sync-assets
-        name: Sync assets from production to staging
-        if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch' || github.repository != 'MWDelaney/trellis-template'
+      # Eject production for delivery
+      - uses: ./.github/actions/eject
+        name: Eject production for delivery
         with:
           from: ${{ env.from }}
-          to: ${{ env.to }}
           trellis_site_slug: ${{ secrets.TRELLIS_SITE_SLUG }}
           trellis_deploy_ssh_private_key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
           trellis_deploy_ssh_known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}

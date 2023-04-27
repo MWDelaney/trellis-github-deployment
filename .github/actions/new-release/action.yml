@@ -1,0 +1,73 @@
+name: 'New Release'
+description: 'Publish a new release to GitHub'
+
+inputs:
+  environment:
+    description: 'The environment to deploy to'
+    required: true
+
+  site_url:
+    description: 'The URL of the site to deploy'
+    required: true
+
+  ref:
+    description: 'The Git ref to deploy'
+    required: true
+
+  github_token:
+    description: 'The GitHub token to use'
+    required: true
+
+  trellis_site_slug:
+    description: 'The Trellis site slug'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+
+    # Get the current date and time in both human-readable and machine-readable formats
+    - name: Get the date and time
+      shell: bash
+      id: get_date
+      run: |
+        echo "human_date: $(date +'%Y-%m-%d %H:%M:%S')"
+        echo "machine_date: $(date +'%Y%m%d%H%M%S')"
+        echo "human_date=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
+        echo "machine_date=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+    # Create a Git tag with the environment name and machine-readable date
+    - name: 🏷️ Tag version
+      id: tag_version
+      uses: mathieudutour/github-tag-action@v6.1
+      with:
+        github_token: ${{ inputs.github_token }}
+        custom_tag: "${{ inputs.environment }}-${{ steps.get_date.outputs.machine_date }}"
+        tag_prefix: ''
+
+    # If this is the production environment, export the database to a local file with the name of the environment and the date
+    - name: 🗃️ Export database
+      shell: bash
+      if: ${{ inputs.environment == 'production' }}
+      working-directory: site
+      run: |
+        wp @"${{ inputs.environment }}" db export --default-character-set=utf8mb4 - > ./"${{ inputs.environment }}"-"$(date +'%Y-%m-%d-%H-%M-%S')".sql
+
+
+    # If this is the production environment, create a release with the database export as an asset
+    - name: 📦 Create release
+      if: ${{ inputs.environment == 'production' }}
+      uses: ncipollo/release-action@v1
+      with:
+        tag: "${{ steps.tag_version.outputs.new_tag }}"
+        artifacts: "site/*.sql"
+        token: ${{ inputs.github_token }}
+        makeLatest: true
+        name: "${{ inputs.trellis_site_slug }} - ${{ steps.get_date.outputs.human_date }}"
+        body: |
+          # ${{ inputs.environment }}
+
+          * 🔗 ${{ inputs.site_url }}
+          * 📅 ${{ steps.get_date.outputs.human_date }}
+
+          ${{ steps.tag_version.outputs.changelog }}
