@@ -88,7 +88,8 @@ runs:
       run: |
         ssh -o ForwardAgent=yes ${{ steps.from_site.outputs.ssh_user }}@${{ steps.from_site.outputs.domain }} "rsync -aze 'ssh -o StrictHostKeyChecking=no' --progress ${{ steps.from_site.outputs.dir }} ${{ steps.to_site.outputs.ssh_user }}@${{ steps.to_site.outputs.domain }}:${{ steps.to_site.outputs.dir }}"
 
-    # Report success
+    # Report success to the log
     - name: 🎉 Sync complete
       shell: bash
-      run: echo "Sync complete!"
+      run: |
+        echo "::notice::Successfully synchronized assets from ${{ inputs.from }} to ${{ inputs.to }}"

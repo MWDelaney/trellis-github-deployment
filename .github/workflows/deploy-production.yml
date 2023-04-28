@@ -1,5 +1,10 @@
-name: Deploy to production
-run-name: Deploy to production
+# .github/workflows/deploy-production.yml
+##
+# Deploy to production with Trellis
+##
+
+name: 🚀 Deploy to production
+run-name: deploy-production
 
 on:
   workflow_dispatch:
@@ -13,7 +18,9 @@ env:
 jobs:
   deploy-production:
     runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
+
       # Checkout the repo
       - uses: actions/checkout@v3
         with:

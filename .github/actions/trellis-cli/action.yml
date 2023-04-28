@@ -31,26 +31,35 @@ inputs:
     description: 'The Ansible vault password to use'
     required: true
 
+  dry_run:
+    description: 'Whether to run a dry-run deployment'
+    required: false
 
 runs:
   using: 'composite'
   steps:
 
+    # If this is a dry run, show a message indicating so
+    - name: Is this a dry run?
+      if: ${{ inputs.dry_run }}
+      shell: bash
+      run: |
+        echo "::notice::This is a dry run, this deployment will not be finalized."
+
     # Start a GitHub "deployment"
     - name: Start deployment
       uses: bobheadxi/deployments@v1
       id: deployment
+      if: ${{ inputs.dry_run == '' }}
       with:
         step: start
         token: ${{ inputs.GITHUB_TOKEN }}
         env: ${{ inputs.environment }}
 
     # Optional sage build, should be refactored into separate workflow
-    # - uses: actions/setup-node@v3
-    #   with:
-    #     node-version: '16'
-    #     cache: yarn
-    #     cache-dependency-path: site/web/app/themes/sage/yarn.lock
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '16'
 
     # Check that the deploy.yml file exists, a reasonable check that this is a Trellis project
     - uses: andstor/file-existence-action@v2
@@ -83,10 +92,12 @@ runs:
 
     # install WP-CLI
     - name: Setup WP-CLI
+      if: ${{ inputs.dry_run == '' }}
       uses: godaddy-wordpress/setup-wp-cli@1
 
     # Use WP CLI to get the site URL from the deployed site
     - name: Get site URL
+      if: ${{ inputs.dry_run == '' }}
       shell: bash
       working-directory: site
       id: site_url
@@ -96,6 +107,7 @@ runs:
     # Call the new-release action to create a tag and/or release
     - name: Create release
       uses: ./.github/actions/new-release
+      if: ${{ inputs.dry_run == '' }}
       with:
         environment: ${{ inputs.environment }}
         site_url: ${{ steps.site_url.outputs.url }}
@@ -106,7 +118,7 @@ runs:
     # Finish the GitHub "deployment"
     - name: Finalize deployment status
       uses: bobheadxi/deployments@v1
-      if: always()
+      if: ${{ inputs.dry_run == '' }}
       with:
         step: finish
         token: ${{ inputs.GITHUB_TOKEN }}

@@ -1,0 +1,36 @@
+# .github/workflows/sage10-build.yml
+##
+# Build a Sage 10-based theme
+#
+# ⚠️ This example assumes your theme is using Sage 10
+#
+# Replace `sage` below with your theme folder
+#
+##
+
+name: 🚧 Sage 10 build test
+
+on: [push]
+
+env:
+  theme_slug: sage  # Update this with your theme's directory name
+  node_version: '16'
+
+jobs:
+  yarn-build:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./site/web/app/themes/${{ env.theme_slug }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ env.node_version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.node_version }}
+        cache: yarn
+        cache-dependency-path: ./site/web/app/themes/${{ env.theme_slug }}/yarn.lock
+
+    - run: yarn install
+    - run: yarn build:production

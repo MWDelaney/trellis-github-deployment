@@ -1,4 +1,10 @@
-name: Update README
+# .github/workflows/update-readme.yml
+##
+# Update readme to reflect repository name
+##
+
+name: 📝 Update README
+run-name: update-readme
 
 on:
   workflow_dispatch:
@@ -6,7 +12,6 @@ on:
 jobs:
   update-readme:
     runs-on: ubuntu-latest
-    if: github.repository != 'MWDelaney/trellis-template'
     steps:
 
       #Checkout the repo
@@ -18,7 +23,7 @@ jobs:
         with:
           find: "MWDelaney/trellis-template"
           replace: "${{ github.repository_owner }}/${{ github.event.repository.name }}"
-          include: "README.md"
+          include: ".github/README.md"
           regex: false
 
       # Replace repository title
@@ -27,11 +32,11 @@ jobs:
         with:
           find: "# trellis-template"
           replace: "# ${{ github.event.repository.name }}"
-          include: "README.md"
+          include: ".github/README.md"
           regex: false
 
       # Commit changes
       - name: Commit changes
-        uses: EndBug/add-and-commit@v7
+        uses: EndBug/add-and-commit@v9
         with:
           message: "Update README"

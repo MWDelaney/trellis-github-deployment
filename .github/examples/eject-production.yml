@@ -1,5 +1,14 @@
-name: Eject production for delivery
-run-name: Eject production
+# .github/workflows/eject-production.yml
+##
+# Eject production
+#
+# Export a Trellis-managed site from production
+# for delivery to a traditional WordPress environment
+# and attach artifacts to the workflow run for download
+##
+
+name: ⏏️ Eject production for delivery
+run-name: eject-production
 
 on:
   workflow_dispatch:
@@ -9,7 +18,6 @@ env:
 
 jobs:
   eject-production:
-
     runs-on: ubuntu-latest
     steps:
 

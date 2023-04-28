@@ -1,6 +1,10 @@
 # .github/workflows/sync-content-production-to-staging.yml
+##
+# Sync content production->staging
+##
 
-name: Sync content from production to staging
+name: 🔄 Sync content production->staging
+run-name: sync-content-production-to-staging
 
 on:
   workflow_dispatch:
@@ -11,9 +15,9 @@ env:
 
 jobs:
   sync-content-production-to-staging:
-
     runs-on: ubuntu-latest
     steps:
+
       # Checkout the repo
       - uses: actions/checkout@v3
         with:
