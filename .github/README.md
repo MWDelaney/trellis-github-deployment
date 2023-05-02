@@ -1,8 +1,8 @@
-# trellis-template
+# example.com
 
 This [Trellis](https://roots.io/trellis/)-based WordPress project uses GitHub Actions for continuous deployment.
 
-[![Deploy to staging](https://github.com/MWDelaney/trellis-template/actions/workflows/deploy-staging.yml/badge.svg?branch=staging)](https://github.com/MWDelaney/trellis-template/actions/workflows/deploy-staging.yml) [![Deploy to production](https://github.com/MWDelaney/trellis-template/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/MWDelaney/trellis-template/actions/workflows/deploy-production.yml)
+[![Deploy to staging](https://github.com/MWDelaney/example.com/actions/workflows/deploy-staging.yml/badge.svg?branch=staging)](https://github.com/MWDelaney/example.com/actions/workflows/deploy-staging.yml) [![Deploy to production](https://github.com/MWDelaney/example.com/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/MWDelaney/example.com/actions/workflows/deploy-production.yml)
 
 ## Deployment
 
@@ -12,7 +12,7 @@ This project deploys to the `staging` and `production` environments when a `pull
 
 GitHub **Deployments** maintain a history of deployments and provide links to the current deployments in each.
 
-[See the current deployments](https://github.com/MWDelaney/trellis-template/deployments)
+[See the current deployments](https://github.com/MWDelaney/example.com/deployments)
 
 <details>
 <summary>Initial Setup</summary>
