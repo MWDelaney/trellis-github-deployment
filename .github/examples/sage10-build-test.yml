@@ -32,5 +32,6 @@ jobs:
         cache: yarn
         cache-dependency-path: ./site/web/app/themes/${{ env.theme_slug }}/yarn.lock
 
+    - run: composer install
     - run: yarn install
     - run: yarn build:production

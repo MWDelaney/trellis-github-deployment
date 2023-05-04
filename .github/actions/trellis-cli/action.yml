@@ -1,5 +1,5 @@
-name: 'Trellis CLI Deployment'
-description: 'Deploys to a Trellis environment using the Trellis CLI'
+name: '🚀 Deploy to Trellis environment'
+description: 'Deploys to a Trellis environment using trellis-cli'
 
 inputs:
   extra-vars:

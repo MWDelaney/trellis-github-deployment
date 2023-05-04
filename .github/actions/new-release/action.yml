@@ -31,10 +31,19 @@ runs:
       shell: bash
       id: get_date
       run: |
-        echo "human_date: $(date +'%Y-%m-%d %H:%M:%S')"
-        echo "machine_date: $(date +'%Y%m%d%H%M%S')"
         echo "human_date=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
         echo "machine_date=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+    # Use WP CLI to the site info
+    - name: Get ${{ inputs.environment }} site info
+      shell: bash
+      id: from_site
+      working-directory: site
+      run: |
+        echo "url=$(wp @"${{ inputs.environment }}" option get home)" >> $GITHUB_OUTPUT
+        echo "domain=$(wp @${{ inputs.environment }} option get home | sed 's/https\?:\/\///')" >> $GITHUB_OUTPUT
+        echo "dir=/srv/www/${{ inputs.TRELLIS_SITE_SLUG }}/current/web/app/uploads" >> $GITHUB_OUTPUT
+        echo "ssh_user=web" >> $GITHUB_OUTPUT
 
     # Create a Git tag with the environment name and machine-readable date
     - name: 🏷️ Tag version
@@ -51,16 +60,28 @@ runs:
       if: ${{ inputs.environment == 'production' }}
       working-directory: site
       run: |
-        wp @"${{ inputs.environment }}" db export --default-character-set=utf8mb4 - > ./"${{ inputs.environment }}"-"$(date +'%Y-%m-%d-%H-%M-%S')".sql
+        wp @"${{ inputs.environment }}" db export --default-character-set=utf8mb4 - > ./"${{ inputs.environment }}"-"${{ steps.get_date.outputs.machine_date }}".sql
 
 
-    # If this is the production environment, create a release with the database export as an asset
+    # Download the app/uploads directory from the production environment using rsync
+    - name: 🍱 Download production uploads directory
+      shell: bash
+      run: |
+        rsync -Laz --progress --delete -e "ssh -o StrictHostKeyChecking=no" "${{ steps.from_site.outputs.ssh_user }}"@"${{ steps.from_site.outputs.domain }}":"${{ steps.from_site.outputs.dir }}"/ ./uploads
+
+    # Zip the uploads directory
+    - name: 🗜️ Compress uploads directory
+      shell: bash
+      run: |
+        zip -r uploads-"${{ steps.get_date.outputs.machine_date }}".zip ./uploads
+
+    # If this is the production environment, create a release with the database export and uploads zip as artifacts
     - name: 📦 Create release
       if: ${{ inputs.environment == 'production' }}
       uses: ncipollo/release-action@v1
       with:
         tag: "${{ steps.tag_version.outputs.new_tag }}"
-        artifacts: "site/*.sql"
+        artifacts: "site/*.sql,uploads-*.zip"
         token: ${{ inputs.github_token }}
         makeLatest: true
         name: "${{ inputs.trellis_site_slug }} - ${{ steps.get_date.outputs.human_date }}"

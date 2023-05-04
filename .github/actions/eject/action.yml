@@ -34,11 +34,6 @@ runs:
         echo "human_date=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
         echo "machine_date=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
-    # Set up PHP
-    - uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.0'
-
     # Set up known hosts
     - uses: shimataro/ssh-key-action@v2
       with:

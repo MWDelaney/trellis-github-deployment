@@ -30,11 +30,6 @@ runs:
   using: 'composite'
   steps:
 
-    # Set up PHP
-    - uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.0'
-
     # Set up known hosts
     - uses: shimataro/ssh-key-action@v2
       with:
@@ -75,12 +70,12 @@ runs:
     # Sync database with WP-CLI
     - name: 🗃️ Sync database
       working-directory: ${{ inputs.WORKING_DIRECTORY }}
+      shell: bash
       run: |
         wp "@${{ inputs.TO }}" db export --default-character-set=utf8mb4 &&
         wp "@${{ inputs.TO }}" db reset --yes &&
         wp "@${{ inputs.FROM }}" db export --default-character-set=utf8mb4 - | wp "@${{ inputs.TO }}" db import - &&
         wp "@${{ inputs.TO }}" search-replace "${{ steps.from_site.outputs.url }}" "${{ steps.to_site.outputs.url }}" --all-tables-with-prefix
-      shell: bash
 
     # Sync uploads with ssh and rsync
     - name: 🍱 Sync uploads
