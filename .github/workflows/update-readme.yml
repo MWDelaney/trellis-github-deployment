@@ -23,7 +23,7 @@ jobs:
         with:
           find: "MWDelaney/example.com"
           replace: "${{ github.repository_owner }}/${{ github.event.repository.name }}"
-          include: ".github/README.md"
+          include: ".github/README.template.md"
           regex: false
 
       # Replace repository title
@@ -32,8 +32,13 @@ jobs:
         with:
           find: "# example.com"
           replace: "# ${{ github.event.repository.name }}"
-          include: ".github/README.md"
+          include: ".github/README.template.md"
           regex: false
+
+      # Change the filename to .README
+      - name: Rename README
+        shell: bash
+        run: mv .github/README.template.md .github/README.md
 
       # Commit changes
       - name: Commit changes
