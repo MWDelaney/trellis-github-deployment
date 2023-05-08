@@ -14,7 +14,7 @@ Automatically deploy [Trellis](https://roots.io/trellis/)-based WordPress site t
 
 - 🌱 Sage 10 asset building on pull request or on-demand (make sure your theme builds before you deploy it!).
 - 🧪 Dry-run deployments to `staging` and `production` environments on pull request or on-demand (confirm Trellis can deploy successfully without finalizing the deployment).
-- ⏏️ Eject WordPress site from Bedrock and Trellis and prepare database and assets for migration to another traditional WordPress hosting.
+- ⏏️ Eject WordPress site from Bedrock and Trellis and prepare database and assets for migration to traditional WordPress hosting.
 
 ## Requirements
 
