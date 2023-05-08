@@ -4,18 +4,23 @@ Automatically deploy [Trellis](https://roots.io/trellis/)-based WordPress site t
 
 ## Features
 
-- 🚀 Automatic deployment to `staging` and `production` environments using [GitHub Actions](https://github.com/features/actions).
-- 🔄 On-Demand sync database and assets from `production` to `staging`.
-- 🔗 Maintains a history of [GitHub Deployments](https://docs.github.com/en/rest/reference/repos#create-a-deployment) provides links to the current deployments in each environment.
-- 📝 Automatically update README.md with deployment status badges.
-- 📦 WordPress plugin, core, and theme updates managed with [Dependabot](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/about-dependabot-version-updates).
+- 🚀 **Automatic deployment** to `staging` and `production` environments using [GitHub Actions](https://github.com/features/actions).
+- 🔄 **On-Demand sync** database and assets from `production` to `staging`.
+- 🔗 **Maintains a history of [GitHub Deployments](https://docs.github.com/en/rest/reference/repos#create-a-deployment)** and provides links to the current deployments in each environment.
+- 📦 **WordPress plugin, core, and theme updates** managed with [Dependabot](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/about-dependabot-version-updates).
+- 📝 **Automatically updates README.md** with deployment status badges.
 
 ### Optional Additional Workflows
+<details>
+<summary>Click to expand</summary>
 
 - 🌱 Sage 10 asset building on pull request or on-demand (make sure your theme builds before you deploy it!).
 - 🧪 Dry-run deployments to `staging` and `production` environments on pull request or on-demand (confirm Trellis can deploy successfully without finalizing the deployment).
 - ⏏️ Eject WordPress site from Bedrock and Trellis and prepare database and assets for migration to traditional WordPress hosting.
 
+</details>
+
+---
 ## Requirements
 
 - A [Trellis](https://roots.io/trellis/docs/installing-trellis/)-based WordPress website.
@@ -25,6 +30,8 @@ Automatically deploy [Trellis](https://roots.io/trellis/)-based WordPress site t
 
 1. Copy the `.github` directory from this repository to your Trellis-based WordPress site's repository.
 2. Refer to the Initial Setup instructions in `.github/README.md` to configure your GitHub repository for deployment.
+
+---
 
 ## Usage
 
