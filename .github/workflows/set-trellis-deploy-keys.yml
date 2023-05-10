@@ -20,17 +20,16 @@ on:
 
       from_trellis:
         type: boolean
-        description: 'Trellis config'
+        description: 'trellis/group_vars/all/users.yml'
         default: true
 
       from_secrets:
         type: boolean
-        description: 'GitHub secrets (TRELLIS_DEPLOY_KEYS)'
+        description: 'GitHub secret named TRELLIS_DEPLOY_KEYS'
         default: false
 
       new_key:
         description: 'Enter a new key'
-
 
 jobs:
   reset-trellis-deploy-keys:
