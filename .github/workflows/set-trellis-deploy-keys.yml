@@ -1,0 +1,106 @@
+# .github/workflows/reset-trellis-deploy-keys.yml
+##
+# Set or reset SSH deploy keys for a Trellis environment
+#
+# Set or reset the SSH keys in a Trellis environment to the
+# GitHub public key stored in the Trellis project at `trellis/public_keys`
+# and optionally add the public keys stored in GitHub secrets at `TRELLIS_DEPLOY_KEYS`
+# and the deploy keys configured in Trellis at `trellis/group_vars/all/users.yml`.
+##
+
+name: 🔑 Set Trellis deploy keys
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Enter the Trellis environment to reset and choose at least one source of deploy keys to add'
+        required: true
+        default: 'production'
+
+      from_trellis:
+        type: boolean
+        description: 'Trellis config'
+        default: true
+
+      from_secrets:
+        type: boolean
+        description: 'GitHub secrets (TRELLIS_DEPLOY_KEYS)'
+        default: false
+
+      new_key:
+        description: 'Enter a new key'
+
+
+jobs:
+  reset-trellis-deploy-keys:
+    runs-on: ubuntu-latest
+    steps:
+
+      # Checkout the repo
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      # Install WP-CLI
+      - name: Setup WP-CLI
+        uses: godaddy-wordpress/setup-wp-cli@1
+
+      # Install yq
+      - name: Install yq
+        uses: mikefarah/yq@v4
+
+      # Set up known hosts
+      - uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+
+      # Set up SSH agent
+      - uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+
+      # Use WP CLI to get information from the specified environment
+      - name: Get site info
+        shell: bash
+        id: environment_site
+        working-directory: site
+        run: |
+          echo "url=$(wp @"${{ inputs.environment }}" option get home)" >> $GITHUB_OUTPUT
+          echo "domain=$(wp @${{ inputs.environment }} option get home | sed 's/https\?:\/\///')" >> $GITHUB_OUTPUT
+          echo "dir=/srv/www/${{ secrets.TRELLIS_SITE_SLUG }}/shared/uploads" >> $GITHUB_OUTPUT
+          echo "ssh_user=web" >> $GITHUB_OUTPUT
+
+      # Get the contents of the ssh keys in the Trellis project at `trellis/public_keys`
+      - name: Always get GitHub deploy keys from Trellis
+        id: trellis_deploy_keys
+        run: |
+          echo "keys=$(cat trellis/public_keys/*.pub)" >> $GITHUB_OUTPUT
+
+      # Get Trellis configured entries in `trellis/group_vars/all/users.yml`
+      - name: Maybe get Trellis config keys
+        id: trellis_config_keys
+        if: ${{ inputs.from_trellis == true }}
+        run: |
+          echo "keys=$(yq e '.users[] | select(.name == "{{ web_user }}") | .keys[]' trellis/group_vars/all/users.yml | grep -E '^https?://' | xargs -I {} curl -s {})" >> $GITHUB_OUTPUT
+
+      # Get the contents of the ssh keys in the GitHub secrets
+      - name: Maybe get GitHub secrets keys
+        id: github_secrets_keys
+        if: ${{ inputs.from_secrets == true }}
+        run: |
+          echo "keys=${{ secrets.TRELLIS_DEPLOY_KEYS }}" >> $GITHUB_OUTPUT
+
+      # If the user has entered a new key, add it to the list of keys
+      - name: Maybe add new key
+        id: new_key
+        if: ${{ inputs.new_key != '' }}
+        run: |
+          echo "keys=${{ inputs.new_key }}" >> $GITHUB_OUTPUT
+
+      # Connect to the specififed environment via ssh set the contents of `~/.ssh/authorized_keys`
+      - name: Replace all authorized keys
+        shell: bash
+        run: |
+          ssh -o ForwardAgent=yes ${{ steps.environment_site.outputs.ssh_user }}@${{ steps.environment_site.outputs.domain }} "echo ${{ steps.trellis_deploy_keys.outputs.keys }}$'\n'${{ steps.trellis_config_keys.outputs.keys }}$'\n'${{ steps.github_secrets_keys.outputs.keys }}${{ steps.new_key.outputs.keys }} > ~/.ssh/authorized_keys"

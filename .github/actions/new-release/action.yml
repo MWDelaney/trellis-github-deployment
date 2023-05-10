@@ -31,6 +31,8 @@ runs:
       shell: bash
       id: get_date
       run: |
+        echo "human_date: $(date +'%Y-%m-%d %H:%M:%S')"
+        echo "machine_date: $(date +'%Y%m%d%H%M%S')"
         echo "human_date=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
         echo "machine_date=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
@@ -60,11 +62,11 @@ runs:
       if: ${{ inputs.environment == 'production' }}
       working-directory: site
       run: |
-        wp @"${{ inputs.environment }}" db export --default-character-set=utf8mb4 - > ./"${{ inputs.environment }}"-"${{ steps.get_date.outputs.machine_date }}".sql
+        wp @"${{ inputs.environment }}" db export --default-character-set=utf8mb4 - > ./"${{ inputs.environment }}"-"$(date +'%Y-%m-%d-%H-%M-%S')".sql
 
 
     # Download the app/uploads directory from the production environment using rsync
-    - name: 🍱 Download production uploads directory
+    - name: 📥 Download production uploads directory
       shell: bash
       run: |
         rsync -Laz --progress --delete -e "ssh -o StrictHostKeyChecking=no" "${{ steps.from_site.outputs.ssh_user }}"@"${{ steps.from_site.outputs.domain }}":"${{ steps.from_site.outputs.dir }}"/ ./uploads
@@ -75,7 +77,7 @@ runs:
       run: |
         zip -r uploads-"${{ steps.get_date.outputs.machine_date }}".zip ./uploads
 
-    # If this is the production environment, create a release with the database export and uploads zip as artifacts
+    # If this is the production environment, create a release with the database export as an asset
     - name: 📦 Create release
       if: ${{ inputs.environment == 'production' }}
       uses: ncipollo/release-action@v1
