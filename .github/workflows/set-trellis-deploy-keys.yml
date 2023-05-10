@@ -20,12 +20,12 @@ on:
 
       from_trellis:
         type: boolean
-        description: 'trellis/group_vars/all/users.yml'
+        description: 'Trellis config'
         default: true
 
       from_secrets:
         type: boolean
-        description: 'GitHub secrets named TRELLIS_DEPLOY_KEYS'
+        description: 'GitHub secrets (TRELLIS_DEPLOY_KEYS)'
         default: false
 
       new_key:
@@ -40,15 +40,11 @@ jobs:
       # Checkout the repo
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.base.ref }}
+          ref: ${{ github.ref }}
 
       # Install WP-CLI
       - name: Setup WP-CLI
         uses: godaddy-wordpress/setup-wp-cli@1
-
-      # Install yq
-      - name: Install yq
-        uses: mikefarah/yq@v4
 
       # Set up known hosts
       - uses: shimataro/ssh-key-action@v2
@@ -80,10 +76,12 @@ jobs:
 
       # Get Trellis configured entries in `trellis/group_vars/all/users.yml`
       - name: Maybe get Trellis config keys
+        uses: mikefarah/yq@v4
         id: trellis_config_keys
         if: ${{ inputs.from_trellis == true }}
-        run: |
-          echo "keys=$(yq e '.users[] | select(.name == "{{ web_user }}") | .keys[]' trellis/group_vars/all/users.yml | grep -E '^https?://' | xargs -I {} curl -s {})" >> $GITHUB_OUTPUT
+        with:
+          cmd: yq e '.users[] | select(.name == "{{ web_user }}") | .keys[]' trellis/group_vars/all/users.yml | grep -E '^https?://' | xargs -I {} curl -s {}
+
 
       # Get the contents of the ssh keys in the GitHub secrets
       - name: Maybe get GitHub secrets keys
@@ -103,4 +101,4 @@ jobs:
       - name: Replace all authorized keys
         shell: bash
         run: |
-          ssh -o ForwardAgent=yes ${{ steps.environment_site.outputs.ssh_user }}@${{ steps.environment_site.outputs.domain }} "echo ${{ steps.trellis_deploy_keys.outputs.keys }}$'\n'${{ steps.trellis_config_keys.outputs.keys }}$'\n'${{ steps.github_secrets_keys.outputs.keys }}${{ steps.new_key.outputs.keys }} > ~/.ssh/authorized_keys"
+          ssh -o ForwardAgent=yes ${{ steps.environment_site.outputs.ssh_user }}@${{ steps.environment_site.outputs.domain }} "echo ${{ steps.trellis_deploy_keys.outputs.keys }}$'\n'${{ steps.trellis_config_keys.outputs.result }}$'\n'${{ steps.github_secrets_keys.outputs.keys }}${{ steps.new_key.outputs.keys }} > ~/.ssh/authorized_keys"
