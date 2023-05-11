@@ -68,12 +68,14 @@ runs:
     # Download the app/uploads directory from the production environment using rsync
     - name: 📥 Download production uploads directory
       shell: bash
+      if: ${{ inputs.environment == 'production' }}
       run: |
         rsync -Laz --progress --delete -e "ssh -o StrictHostKeyChecking=no" "${{ steps.from_site.outputs.ssh_user }}"@"${{ steps.from_site.outputs.domain }}":"${{ steps.from_site.outputs.dir }}"/ ./uploads
 
     # Zip the uploads directory
     - name: 🗜️ Compress uploads directory
       shell: bash
+      if: ${{ inputs.environment == 'production' }}
       run: |
         zip -r uploads-"${{ steps.get_date.outputs.machine_date }}".zip ./uploads
 
