@@ -31,8 +31,6 @@ runs:
       shell: bash
       id: get_date
       run: |
-        echo "human_date: $(date +'%Y-%m-%d %H:%M:%S')"
-        echo "machine_date: $(date +'%Y%m%d%H%M%S')"
         echo "human_date=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
         echo "machine_date=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
@@ -43,7 +41,7 @@ runs:
       working-directory: site
       run: |
         echo "url=$(wp @"${{ inputs.environment }}" option get home)" >> $GITHUB_OUTPUT
-        echo "domain=$(wp @${{ inputs.environment }} option get home | sed 's/https\?:\/\///')" >> $GITHUB_OUTPUT
+        echo "domain=$(trellis exec ansible-inventory --list | jq -r '.["production"].hosts[0]')" >> $GITHUB_OUTPUT
         echo "dir=/srv/www/${{ inputs.TRELLIS_SITE_SLUG }}/current/web/app/uploads" >> $GITHUB_OUTPUT
         echo "ssh_user=web" >> $GITHUB_OUTPUT
 
