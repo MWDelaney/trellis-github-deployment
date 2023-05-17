@@ -52,7 +52,7 @@ runs:
       working-directory: ${{ inputs.WORKING_DIRECTORY }}
       run: |
         echo "url=$(wp @"${{ inputs.FROM }}" option get home)" >> $GITHUB_OUTPUT
-        echo "domain=$(wp @${{ inputs.FROM }} option get home | sed 's/https\?:\/\///')" >> $GITHUB_OUTPUT
+        echo "domain=$(trellis exec ansible-inventory --list | jq -r '.["${{ inputs.FROM }}"].hosts[0]')" >> $GITHUB_OUTPUT
         echo "dir=/srv/www/${{ inputs.TRELLIS_SITE_SLUG }}/shared/uploads" >> $GITHUB_OUTPUT
         echo "ssh_user=web" >> $GITHUB_OUTPUT
 
@@ -63,7 +63,7 @@ runs:
       working-directory: ${{ inputs.WORKING_DIRECTORY }}
       run: |
         echo "url=$(wp @"${{ inputs.TO }}" option get home)" >> $GITHUB_OUTPUT
-        echo "domain=$(wp @${{ inputs.FROM }} option get home | sed 's/https\?:\/\///')" >> $GITHUB_OUTPUT
+        echo "domain=$(trellis exec ansible-inventory --list | jq -r '.["${{ inputs.TO }}"].hosts[0]')" >> $GITHUB_OUTPUT
         echo "dir=/srv/www/${{ inputs.TRELLIS_SITE_SLUG }}/shared/uploads" >> $GITHUB_OUTPUT
         echo "ssh_user=web" >> $GITHUB_OUTPUT
 
