@@ -164,4 +164,4 @@ Exports a WordPress site built with Trellis from the `production` environment fo
 
 ### Dependabot
 
-By default, Dependabot will check for updates to WordPress themes, plugins, and core as defined in `site/composer.json` on a weekly basis. You can change this behavior by editing the `.github/dependabot.yml` file.
+By default, Dependabot will check for updates to WordPress themes, plugins, and core as defined in `site/composer.json` on a weekly basis and propose pull requests to the `staging` branch. You can change this behavior by editing the `.github/dependabot.yml` file.
