@@ -116,7 +116,7 @@ Updates the README.md with the current deployment status badges. This action can
 These example workflows are included to expand the functionality of this project. They are not enabled by default.
 
 <details>
-<summary>📝 Dry-Run to Production</summary>
+<summary>🧪 Dry-Run to Production</summary>
 
 ```md
 .github/examples/dryrun-production.yml
@@ -127,7 +127,7 @@ These example workflows are included to expand the functionality of this project
 Performs a "dry-run" deployment to the `production` environment, testing all aspects of a Trellis deployment without finalizing the deploy. Automatically deploys to the `staging` environment when a `pull_request` is `opened` to the `main` branch. This action can also be run manually from the "Actions" tab in GitHub.
 </details>
 <details>
-<summary>📝 Dry-Run to Staging</summary>
+<summary>🧪 Dry-Run to Staging</summary>
 
 ```md
 .github/examples/dryrun-staging.yml
