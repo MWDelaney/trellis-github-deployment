@@ -38,6 +38,10 @@ Automatically deploy your [Trellis](https://roots.io/trellis/)-based WordPress s
 
 ## Usage
 
+### Default Workflows
+
+These workflows are included and enabled by default.
+
 <details>
 <summary>🚀 Deploy to production</summary>
 
@@ -109,6 +113,8 @@ Updates the README.md with the current deployment status badges. This action can
 
 ### Optional Workflows
 
+These example workflows are included to expand the functionality of this project. They are not enabled by default.
+
 <details>
 <summary>📝 Dry-Run to Production</summary>
 
@@ -154,3 +160,8 @@ Builds the Sage 10 theme and runs the theme's tests. Automatically runs when a `
 ⚠️ **NOTE:** This workflow must be moved to the `.github/workflows` directory to be used.
 
 Exports a WordPress site built with Trellis from the `production` environment for delivery to a traditional WordPress environment and attach artifacts to the workflow run for download.  This action can be run manually from the "Actions" tab in GitHub.
+</details>
+
+### Dependabot
+
+By default, Dependabot will check for updates to WordPress themes, plugins, and core as defined in `site/composer.json` on a weekly basis. You can change this behavior by editing the `.github/dependabot.yml` file.
