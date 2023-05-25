@@ -106,3 +106,37 @@ This action replaces the current deploy keys with keys with keys defined in one 
 
 Updates the README.md with the current deployment status badges. This action can be run manually from the "Actions" tab in GitHub.
 </details>
+<details>
+<summary>📝 Dry-Run to Production</summary>
+
+```md
+.github/examples/dryrun-production.yml
+```
+
+⚠️ **NOTE:** This workflow must be moved to the `.github/workflows` directory to be used.
+
+Performs a "dry-run" deployment to the `production` environment, testing all aspects of a Trellis deployment without finalizing the deploy. Automatically deploys to the `staging` environment when a `pull_request` is `opened` to the `main` branch. This action can also be run manually from the "Actions" tab in GitHub.
+</details>
+<details>
+<summary>📝 Dry-Run to Staging</summary>
+
+```md
+.github/examples/dryrun-staging.yml
+```
+
+⚠️ **NOTE:** This workflow must be moved to the `.github/workflows` directory to be used. 
+
+Performs a "dry-run" deployment to the `staging` environment, testing all aspects of a Trellis deployment without finalizing the deploy. Automatically deploys to the `staging` environment when a `pull_request` is `opened` to the `staging` branch. This action can also be run manually from the "Actions" tab in GitHub.
+</details>
+<details>
+<summary>🌱 Sage 10 Build Test</summary>
+
+```md
+.github/examples/sage10-build-test.yml
+```
+
+⚠️ **NOTE:** This workflow must be moved to the `.github/workflows` directory to be used.
+
+⚠️ **NOTE:** You must edit this workflow to update the `theme_slug` variable with your theme's slug.
+
+Builds the Sage 10 theme and runs the theme's tests. Automatically runs when a `push` is made to any branch.
