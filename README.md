@@ -106,6 +106,9 @@ This action replaces the current deploy keys with keys with keys defined in one 
 
 Updates the README.md with the current deployment status badges. This action can be run manually from the "Actions" tab in GitHub.
 </details>
+
+### Optional Workflows
+
 <details>
 <summary>📝 Dry-Run to Production</summary>
 
@@ -140,3 +143,14 @@ Performs a "dry-run" deployment to the `staging` environment, testing all aspect
 ⚠️ **NOTE:** You must edit this workflow to update the `theme_slug` variable with your theme's slug.
 
 Builds the Sage 10 theme and runs the theme's tests. Automatically runs when a `push` is made to any branch.
+</details>
+<details>
+<summary>⏏️ Eject WordPress Site</summary>
+
+```md
+.github/examples/eject-wordpress-site.yml
+```
+
+⚠️ **NOTE:** This workflow must be moved to the `.github/workflows` directory to be used.
+
+Exports a WordPress site built with Trellis from the `production` environment for delivery to a traditional WordPress environment and attach artifacts to the workflow run for download.  This action can be run manually from the "Actions" tab in GitHub.
