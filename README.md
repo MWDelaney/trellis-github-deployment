@@ -2,6 +2,8 @@
 
 Automatically deploy your [Trellis](https://roots.io/trellis/)-based WordPress site to `staging` and `production` environments on merge to `staging` and `main` branches respectively, and keep plugins, themes, and WordPress core up to date with Dependabot.
 
+🔥 Based on [setup-trellis-cli](https://github.com/roots/setup-trellis-cli). This set of GitHub actions and workflows extend the functionality of that package to more tightly integrate with GitHub's native features.
+
 ## Features
 
 - 🚀 **Automatic (or manual) deployment** to `staging` and `production` environments using [GitHub Actions](https://github.com/features/actions) when pull requests are merged to your `staging` and `main` branches respectively.
