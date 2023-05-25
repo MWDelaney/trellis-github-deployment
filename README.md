@@ -151,10 +151,10 @@ Performs a "dry-run" deployment to the `staging` environment, testing all aspect
 Builds the Sage 10 theme and runs the theme's tests. Automatically runs when a `push` is made to any branch.
 </details>
 <details>
-<summary>⏏️ Eject WordPress Site</summary>
+<summary>⏏️ Eject Production</summary>
 
 ```md
-.github/examples/eject-wordpress-site.yml
+.github/examples/eject-production.yml
 ```
 
 ⚠️ **NOTE:** This workflow must be moved to the `.github/workflows` directory to be used.
