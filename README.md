@@ -98,7 +98,7 @@ Updates the ssh keys used by Trellis to deploy to the `staging` or `production` 
 
 This action replaces the current deploy keys with keys with keys defined in one or more of the following locations:
 
-- 'trellis/group_vars/all/users.yml'
+- `trellis/group_vars/all/users.yml`
 - GitHub secrets named `TRELLIS_DEPLOY_KEYS`
 - A new key entered manually when running the action
 
