@@ -14,6 +14,7 @@ Automatically deploy your [Trellis](https://roots.io/trellis/)-based WordPress s
 - 📝 **Optionally generates README.md** with deployment status badges and setup instructions.
 
 ### Optional Additional Workflows
+
 <details>
 <summary>Click to expand</summary>
 
@@ -24,6 +25,7 @@ Automatically deploy your [Trellis](https://roots.io/trellis/)-based WordPress s
 </details>
 
 ---
+
 ## Requirements
 
 - A [Trellis](https://roots.io/trellis/docs/installing-trellis/)-based WordPress website.

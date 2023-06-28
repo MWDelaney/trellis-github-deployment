@@ -60,24 +60,13 @@ runs:
         echo "dir=/srv/www/${{ inputs.TRELLIS_SITE_SLUG }}/current/web/app" >> $GITHUB_OUTPUT
         echo "ssh_user=web" >> $GITHUB_OUTPUT
 
-    # Install WP Search Replace CLI
-    - name: Install WP Search Replace CLI
-      shell: bash
-      run: composer global require andreekeberg/wp-search-replace-cli
 
     # If this is the production environment, export the database to a local file with the name of the environment and the date
     - name: 🗃️ Export database
       shell: bash
       working-directory: ${{ inputs.working_directory }}
       run: |
-        wp @"${{ inputs.from }}" db export --default-character-set=utf8mb4 - > ./${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}-trellis.sql
-
-    # Search-replace the database dump for app/uploads, replace with wp-content/uploads
-    - name: 🔎 Replace app/uploads with wp-content/uploads
-      shell: bash
-      working-directory: ${{ inputs.working_directory }}
-      run: |
-        wp-search-replace --input=${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}-trellis.sql --output=${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}.sql --search='app/uploads' --replace='wp-content/uploads'
+        wp @"${{ inputs.from }}" search-replace app/uploads wp-content/uploads --export='./${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}-trellis.sql'
 
     # Download the app directory from the production environment using rsync
     - name: 📥 Download production wp-content directory
