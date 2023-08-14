@@ -26,6 +26,14 @@ inputs:
     description: 'The working directory to use'
     required: true
 
+  github_token:
+    description: 'The GitHub token to use'
+    required: true
+
+  ansible_vault_password:
+    description: 'The Ansible vault password to use'
+    required: true
+
 runs:
   using: 'composite'
   steps:
@@ -40,6 +48,13 @@ runs:
     - uses: webfactory/ssh-agent@v0.8.0
       with:
         ssh-private-key: ${{ inputs.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+
+    # Install Trellis CLI
+    - uses: roots/setup-trellis-cli@v1
+      with:
+        repo-token: ${{ inputs.GITHUB_TOKEN }}
+        ansible-vault-password: ${{ inputs.ANSIBLE_VAULT_PASSWORD }}
+
 
     # Install WP-CLI
     - name: Setup WP-CLI

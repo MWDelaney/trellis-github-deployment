@@ -33,4 +33,6 @@ jobs:
           trellis_site_slug: ${{ secrets.TRELLIS_SITE_SLUG }}
           trellis_deploy_ssh_private_key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
           trellis_deploy_ssh_known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          ansible_vault_password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
           working_directory: ./site
