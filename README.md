@@ -12,6 +12,7 @@ Automatically deploy your [Trellis](https://roots.io/trellis/)-based WordPress s
 - 🔑 **Re-set deployment keys on-demand** when you need to change who has access to `staging` or `production`.
 - 📦 **WordPress plugin, core, and theme updates** managed with [Dependabot](https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/about-dependabot-version-updates).
 - 📝 **Optionally generates README.md** with deployment status badges and setup instructions.
+- 🚩 **Manage WordPress Dependencies** with issue-ops. Install or remove plugins and themes by submitting a GitHub issue.
 
 ### Optional Additional Workflows
 
@@ -113,6 +114,15 @@ This action replaces the current deploy keys with keys with keys defined in one 
 ```
 
 Updates the README.md with the current deployment status badges. This action can be run manually from the "Actions" tab in GitHub.
+</details>
+<details>
+<summary>🐘 Composer Dependency</summary>
+
+```md
+.github/workflows/composer-dependency.yml
+```
+
+Generates a pull request against the `staging` branch to install a WordPress theme or plugin via composer. This action runs when a new ticket is submitted that uses the "wordpress-dependency.yml" template.
 </details>
 
 ### Optional Workflows
