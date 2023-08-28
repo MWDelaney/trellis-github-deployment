@@ -1,0 +1,81 @@
+name: '🐘 WordPress Packagist action'
+description: 'Manipulate a WordPress Packagist dependency'
+
+inputs:
+  # The action to take
+  action:
+    description: 'The action to take'
+    required: true
+    default: 'require'
+
+  # The repository to use
+  repository:
+    description: 'The repository to use'
+    required: true
+    default: '""'
+
+  # The package to install
+  package:
+    description: 'The package to install'
+    required: true
+    default: '""'
+
+  # The version to install
+  version:
+    description: 'The version to install'
+    required: true
+    default: '""'
+
+  # The version constraint to set
+  constraint:
+    description: 'The version constraint to set'
+    required: true
+    default: '""'
+
+  # The path to the composer.json file
+  composer_json_path:
+    description: 'The path to the composer.json file'
+    required: true
+    default: '""'
+
+  # The actor
+  actor:
+    description: 'The actor'
+    required: true
+    default: '""'
+
+  # Issue number
+  issue_number:
+    description: 'The issue number'
+    required: true
+    default: '""'
+
+  # GitHub token
+  github_token:
+    description: 'The GitHub token to use'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+
+    # Perform the composer action
+    - name: Perform the composer action
+      uses: php-actions/composer@v6
+      with:
+        command: |
+          ${{ inputs.action }} ${{ inputs.repository }}/${{ inputs.package }}:${{ inputs.constraint }}${{ inputs.version }}
+        args: --no-interaction --no-progress --working-dir=site
+
+    # Create a pull request from the new branch to the branch specified in env
+    - name: Create pull request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ inputs.github_token }}
+        add-paths: ./site/composer.json, ./site/composer.lock
+        commit-message: 'Plugin request from ${{ inputs.actor }}: ${{ inputs.action }} ${{ inputs.repository }}/${{ inputs.package }} ${{ inputs.version }}'
+        title: 'Plugin request from ${{ inputs.actor }}: ${{ inputs.action }} ${{ inputs.repository }}/${{ inputs.package }} ${{ inputs.version }}'
+        body: 'Closes #${{ inputs.issue_number }}'
+        branch: ${{ inputs.repository }}-${{ inputs.package }}-${{ inputs.version }}
+        base: ${{ env.environment }}
+        labels: 'composer, ${{ inputs.action }}, ${{ inputs.repository }}, ${{ inputs.package }}'
