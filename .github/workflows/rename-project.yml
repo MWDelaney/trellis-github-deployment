@@ -33,7 +33,7 @@ jobs:
         if: steps.is_template.outputs.is_template == 'true'
         run: |
           echo "Renaming the project with -a(author) ${{ env.REPOSITORY_OWNER }} -n(name) ${{ env.REPOSITORY_NAME }} -u(urlname) ${{ env.REPOSITORY_URLNAME }}"
-          .github/bin/rename_project.sh -a ${{ env.REPOSITORY_OWNER }} -n ${{ env.REPOSITORY_NAME }} -u ${{ env.REPOSITORY_URLNAME }} -d "New WordPress project ${{ env.REPOSITORY_NAME }} created by ${{ env.REPOSITORY_OWNER }}"
+          .github/rename_project.sh -a ${{ env.REPOSITORY_OWNER }} -n ${{ env.REPOSITORY_NAME }} -u ${{ env.REPOSITORY_URLNAME }} -d "New WordPress project ${{ env.REPOSITORY_NAME }} created by ${{ env.REPOSITORY_OWNER }}"
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
