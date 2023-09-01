@@ -1,0 +1,70 @@
+name: Add or remove a WordPress theme or plugin
+description: Make a pull request to add or remove a WordPress theme or plugin.
+labels: ["dependencies"]
+
+title: "[package-name]"
+
+body:
+- type: dropdown
+  id: action
+  attributes:
+    label: Action
+    description: |
+      The action to perform.
+    options:
+      - require
+      - remove
+    default: 0
+  validations:
+    required: true
+
+- type: dropdown
+  id: repository
+  attributes:
+    label: Type of dependency
+    description: |
+      The repository to use.
+    options:
+      - wpackagist-plugin
+      - wpackagist-theme
+    default: 0
+  validations:
+    required: true
+- type: input
+  id: package
+  attributes:
+    label: Package Slug
+    placeholder: my-package
+  validations:
+    required: true
+- type: input
+  id: version
+  attributes:
+    label: Version
+    placeholder: 1.0.0
+  validations:
+    required: true
+- type: dropdown
+  id: constraint
+  attributes:
+    label: Version Constraint
+    description: |
+      The constraint to use when installing the plugin. See [Composer documentation](https://getcomposer.org/doc/articles/versions.md#versions-and-constraints) for more information.
+    options:
+      - "^"
+      - "="
+      - ">="
+      - "<="
+      - "*"
+    default: 0
+  validations:
+    required: true
+- type: checkboxes
+  id: changedTitle
+  attributes:
+    label: Have you changed the title of this issue?
+    description: |
+      If you have changed the title of this issue to include the plugin name, please check this box.
+    options:
+      - label: I promise I changed the title of this issue to include the plugin name.
+        required: true

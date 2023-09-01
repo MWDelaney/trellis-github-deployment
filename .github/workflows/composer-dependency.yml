@@ -1,0 +1,46 @@
+# .github/workflows/composer-dependency.yml
+##
+# Add and remove WordPress themes or plugins using Composer.
+##
+
+name: 🐘 Composer Dependency
+run-name: composer-dependency
+
+# Run when a new issue is opened
+on:
+  issues:
+    types: [opened]
+
+env:
+  environment: staging
+
+jobs:
+  composer-plugin:
+    if: ${{ github.event.label.name == 'dependencies' }}
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repo's staging branch.
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ env.environment }}
+          fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+
+      # Parse the issue
+      - uses: stefanbuck/github-issue-parser@v3
+        id: issue-parser
+        with:
+          template-path: ./.github/ISSUE_TEMPLATE/plugin.yml
+
+      # Install or remove WordPress plugins using Composer
+      - uses: ./.github/actions/composer
+        name: Composer Action
+        with:
+          action: ${{ steps.issue-parser.outputs.issueparser_action }}
+          repository: ${{ steps.issue-parser.outputs.issueparser_repository }}
+          package: ${{ steps.issue-parser.outputs.issueparser_package }}
+          version: ${{ steps.issue-parser.outputs.issueparser_version }}
+          constraint: ${{ steps.issue-parser.outputs.issueparser_constraint }}
+          composer_json_path: ./site/composer.json
+          actor: ${{ github.actor }}
+          issue_number: ${{ github.event.issue.number }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
