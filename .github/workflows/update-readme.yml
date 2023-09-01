@@ -7,15 +7,26 @@ name: 📝 Update README
 run-name: update-readme
 
 on:
-  workflow_dispatch:
+  [workflow_dispatch, push]
 
 jobs:
   update-readme:
     runs-on: ubuntu-latest
     steps:
-
       #Checkout the repo
       - uses: actions/checkout@v3
+
+      # Check if .giithub/template.yml exists
+      - uses: andstor/file-existence-action@v2
+        id: check_files
+        with:
+          files: |
+            .github/template.yml
+
+      # If .github/template.yml does not exist, exit
+      - name: Exit if template.yml does not exist
+        if: steps.check_files.outputs.files_exist == 'false'
+        run: exit 0
 
       # Replace repository slug
       - name: Replace repository slug
@@ -40,8 +51,12 @@ jobs:
         shell: bash
         run: mv .github/README.template.md .github/README.md
 
+      # Delete .github/template.yml
+      - name: Delete template indicator
+        run: rm .github/template.yml
+
       # Commit changes
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
-          message: "Update README"
+          message: "📝 Update README"
