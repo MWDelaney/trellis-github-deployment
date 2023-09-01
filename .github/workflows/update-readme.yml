@@ -28,7 +28,7 @@ jobs:
 
       # Replace repository title
       - name: Replace repository title
-        uses: jacobtomlinson/gha-find-replace@v2
+        uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "# example.com"
           replace: "# ${{ github.event.repository.name }}"
