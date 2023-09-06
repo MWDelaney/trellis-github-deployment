@@ -16,18 +16,6 @@ jobs:
       #Checkout the repo
       - uses: actions/checkout@v3
 
-      # Check if .giithub/template.yml exists
-      - uses: andstor/file-existence-action@v2
-        id: check_files
-        with:
-          files: |
-            .github/template.yml
-
-      # If .github/template.yml does not exist, exit
-      - name: Exit if template.yml does not exist
-        if: steps.check_files.outputs.files_exist == 'false'
-        run: exit 0
-
       # Replace repository slug
       - name: Replace repository slug
         uses: jacobtomlinson/gha-find-replace@v2
@@ -54,6 +42,10 @@ jobs:
       # Delete .github/template.yml
       - name: Delete template indicator
         run: rm .github/template.yml
+
+      # Move this workflow to .github/workflows/examples/update-readme.yml
+      - name: Move workflow
+        run: mv .github/workflows/update-readme.yml .github/workflows/examples/update-readme.yml
 
       # Commit changes
       - name: Commit changes
