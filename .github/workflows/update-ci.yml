@@ -1,0 +1,40 @@
+# .github/workflows/update-ci.yml
+##
+# Update CI workflows and actions to the latest version.
+#
+# This workflow will automatically update the
+# CI workflows and actions to the latest version from mwdelaney/trellis-github-deployment
+##
+
+name: 🔄 Update CI
+run-name: update-ci
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-ci:
+    name: 🔄 Update CI
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repo
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+
+      # Clone mwdelaney/trellis-github-deployment into a temporary directory
+      - name: Clone mwdelaney/trellis-github-deployment
+        uses: actions/checkout@v3
+        with:
+          repository: mwdelaney/trellis-github-deployment
+          path: trellis-github-deployment
+
+      # Copy the contents of trellis-github-deployment/.github to .github, if a file exists in both locatios, overwrite the existing file
+      - name: Copy .github
+        run: cp -rf trellis-github-deployment/.github .github
+
+      # Commit changes
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "🔄 Update CI"

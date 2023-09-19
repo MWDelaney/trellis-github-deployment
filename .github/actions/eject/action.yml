@@ -61,12 +61,12 @@ runs:
         echo "ssh_user=web" >> $GITHUB_OUTPUT
 
 
-    # If this is the production environment, export the database to a local file with the name of the environment and the date
+    # If this is the production environment, export the database using wp-cli and pipe it to a local file.
     - name: 🗃️ Export database
       shell: bash
       working-directory: ${{ inputs.working_directory }}
       run: |
-        wp @"${{ inputs.from }}" search-replace app/uploads wp-content/uploads --export='./${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}-trellis.sql'
+        wp @"${{ inputs.from }}" search-replace app/uploads wp-content/uploads --export > ./"${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}".sql
 
     # Download the app directory from the production environment using rsync
     - name: 📥 Download production wp-content directory
