@@ -7,12 +7,13 @@ name: 📝 Update README
 run-name: update-readme
 
 on:
-  [workflow_dispatch, push]
+  workflow_dispatch:
 
 jobs:
   update-readme:
     runs-on: ubuntu-latest
     steps:
+
       #Checkout the repo
       - uses: actions/checkout@v3
 
@@ -39,16 +40,8 @@ jobs:
         shell: bash
         run: mv .github/README.template.md .github/README.md
 
-      # Delete .github/template.yml
-      - name: Delete template indicator
-        run: rm .github/template.yml
-
-      # Move this workflow to .github/workflows/examples/update-readme.yml
-      - name: Move workflow
-        run: mv .github/workflows/update-readme.yml .github/workflows/examples/update-readme.yml
-
       # Commit changes
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
-          message: "📝 Update README"
+          message: "Update README"
