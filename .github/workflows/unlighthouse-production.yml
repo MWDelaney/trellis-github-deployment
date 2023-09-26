@@ -1,0 +1,36 @@
+# .github/workflows/unlighthouse.yml
+##
+# Run an Unlighthouse audit on a Trellis environment
+#
+# This workflow will run an Unlighthouse audit on a Trellis environment set in the
+# workflow's environment variables. The audit will be run on the environment's production
+# URL and published to GitHub Pages.
+##
+
+name: ⛵ Unlighthouse Audit Production
+run-name: unlighthouse-audit-production
+
+on:
+  workflow_dispatch:
+
+env:
+  environment: production
+
+jobs:
+  unlighthouse:
+    name: Unlighthouse Audit
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repo
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+
+      # Run the Unlighthouse audit
+      - uses: ./.github/actions/unlighthouse
+        name: Audit with Unlighthouse
+        with:
+          environment: ${{ env.environment }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          trellis_deploy_ssh_private_key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+          trellis_deploy_ssh_known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}

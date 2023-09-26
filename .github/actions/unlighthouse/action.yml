@@ -1,0 +1,72 @@
+name: '⛵ Audit a Trellis site with Unlighthouse'
+description: 'Audits a Trellis site with Unlighthouse and publishes the result to GitHub Pages'
+
+inputs:
+
+  environment:
+    description: 'The environment to audit'
+    required: true
+
+  trellis_deploy_ssh_private_key:
+    description: 'The SSH private key to use for deployment'
+    required: true
+
+  trellis_deploy_ssh_known_hosts:
+    description: 'The SSH known hosts to use for deployment'
+    required: true
+
+  github_token:
+    description: 'The GitHub token to use'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+
+    # Set up known hosts
+    - uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ inputs.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+        known_hosts: ${{ inputs.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+
+    # Set up SSH agent
+    - uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ inputs.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+
+    # install WP-CLI
+    - name: Setup WP-CLI
+      uses: godaddy-wordpress/setup-wp-cli@1
+
+    # Use WP CLI to get the site URL from the deployed site
+    - name: Get site URL
+      shell: bash
+      working-directory: site
+      id: site_url
+      run: |
+        echo "url=$(wp @"${{ inputs.environment }}" option get home)" >> $GITHUB_OUTPUT
+
+    # Install Unlighthouse and dependencies
+    - name: Install Dependencies
+      shell: bash
+      run: npm install -g @unlighthouse/cli puppeteer
+
+    # Run Unlighthouse on the URL from the previous step
+    - name: Unlighthouse assertions and client
+      shell: bash
+      run: unlighthouse-ci --site ${{ steps.site_url.outputs.url }} --budget 75 --build-static --routerPrefix "example.com"
+
+    # Publish the resulting .unlighthouse directory to GitHub Pages
+    - name: Publish Unlighthouse results
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ inputs.github_token }}
+        publish_dir: .unlighthouse
+        publish_branch: gh-pages
+        publish_dir_prefix: ${{ inputs.environment }}
+        enable_jekyll: false
+        commit_message: 'Unlighthouse results for ${{ inputs.environment }}'
+        force_orphan: true
+        keep_files: true
+        clean: true
+        allow_empty_commit: true
