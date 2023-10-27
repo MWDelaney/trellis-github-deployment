@@ -62,7 +62,6 @@ runs:
       run: |
         wp @"${{ inputs.environment }}" db export --default-character-set=utf8mb4 - > ./"${{ inputs.environment }}"-"$(date +'%Y-%m-%d-%H-%M-%S')".sql
 
-
     # Download the app/uploads directory from the production environment using rsync
     - name: 📥 Download production uploads directory
       shell: bash

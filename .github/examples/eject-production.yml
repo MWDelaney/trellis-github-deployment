@@ -35,3 +35,4 @@ jobs:
           trellis_deploy_ssh_private_key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
           trellis_deploy_ssh_known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
           working_directory: ./site
+          github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -18,6 +18,10 @@ inputs:
     description: 'The Trellis site slug'
     required: true
 
+  github_token:
+    description: 'The GitHub token to use'
+    required: true
+
   working_directory:
     description: 'The working directory to use'
     required: true
@@ -60,13 +64,20 @@ runs:
         echo "dir=/srv/www/${{ inputs.TRELLIS_SITE_SLUG }}/current/web/app" >> $GITHUB_OUTPUT
         echo "ssh_user=web" >> $GITHUB_OUTPUT
 
-
     # If this is the production environment, export the database using wp-cli and pipe it to a local file.
     - name: 🗃️ Export database
       shell: bash
       working-directory: ${{ inputs.working_directory }}
       run: |
         wp @"${{ inputs.from }}" search-replace app/uploads wp-content/uploads --export > ./"${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}".sql
+
+    # Check that the database export file exists
+    - uses: andstor/file-existence-action@v2
+      if: ${{ inputs.environment == 'production' }}
+      id: check_db_file
+      with:
+        files: "site/${{ inputs.environment }}-*.sql"
+        fail: true
 
     # Download the app directory from the production environment using rsync
     - name: 📥 Download production wp-content directory
@@ -82,18 +93,27 @@ runs:
       run: |
         zip -r wp-content.zip wp-content
 
-    # Attach the database dump and wp-content directory as artifacts to the workflow run
-    - name: 📤 Attach database dump and wp-content directory as artifacts
-      uses: actions/upload-artifact@v3
+    # Create a Git tag with the environment name and machine-readable date
+    - name: 🏷️ Tag version
+      id: tag_version
+      uses: mathieudutour/github-tag-action@v6.1
       with:
-        name: ${{ steps.from_site.outputs.domain }}-${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}
-        path: |
-          site/${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}.sql
-          site/wp-content.zip
+        github_token: ${{ inputs.github_token }}
+        custom_tag: "${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}-eject"
+        tag_prefix: ''
 
-    # Write a message to the log explaining the attached artifacts
-    - name: 📝 Write log message
-      shell: bash
-      working-directory: ${{ inputs.working_directory }}
-      run: |
-        echo "::notice::The database dump and wp-content directory have been attached to this workflow run as artifacts. Download them below."
+    # If this is the production environment, create a release with the database export as an asset
+    - name: 📦 Create release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: "${{ steps.tag_version.outputs.new_tag }}"
+        artifacts: "site/*.sql,site/wp-content.zip"
+        token: ${{ inputs.github_token }}
+        makeLatest: true
+        name: "${{ inputs.trellis_site_slug }} - ${{ steps.get_date.outputs.human_date }} eject"
+        body: |
+          # ${{ inputs.from }} eject
+
+          An export of the site's database and wp-content directory from the ${{ inputs.from }} environment.
+
+          * 📅 ${{ steps.get_date.outputs.human_date }}
