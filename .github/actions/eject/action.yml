@@ -63,6 +63,8 @@ runs:
         echo "domain=$(wp @${{ inputs.from }} option get home | sed 's/https\?:\/\///')" >> $GITHUB_OUTPUT
         echo "dir=/srv/www/${{ inputs.TRELLIS_SITE_SLUG }}/current/web/app" >> $GITHUB_OUTPUT
         echo "ssh_user=web" >> $GITHUB_OUTPUT
+        echo "wp_version=$(wp @"${{ inputs.from }}" core version)" >> $GITHUB_OUTPUT
+
 
     # If this is the production environment, export the database using wp-cli and pipe it to a local file.
     - name: 🗃️ Export database
@@ -79,6 +81,15 @@ runs:
         files: "site/${{ inputs.environment }}-*.sql"
         fail: true
 
+    # Download the version of WordPress that's running in the production environment and unzip it into a new directory named "wordpress"
+    - name: 📥 Download WordPress
+      shell: bash
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        curl -O https://wordpress.org/wordpress-${{ steps.from_site.outputs.wp_version }}.tar.gz
+        tar -xzf wordpress-${{ steps.from_site.outputs.wp_version }}.tar.gz
+        rm wordpress-${{ steps.from_site.outputs.wp_version }}.tar.gz
+
     # Download the app directory from the production environment using rsync
     - name: 📥 Download production wp-content directory
       shell: bash
@@ -86,12 +97,19 @@ runs:
       run: |
         rsync -Laz --progress --delete -e "ssh -o StrictHostKeyChecking=no" "${{ steps.from_site.outputs.ssh_user }}"@"${{ steps.from_site.outputs.domain }}":"${{ steps.from_site.outputs.dir }}"/ ./wp-content
 
-    # Zip the wp-content directory
-    - name: 🗜️ Compress wp-content directory
+    # Move the wp-content directory into the wordpress directory, overwriting the default wp-content directory
+    - name: 📂 Move wp-content directory
       shell: bash
       working-directory: ${{ inputs.working_directory }}
       run: |
-        zip -r wp-content.zip wp-content
+        mv wp-content wordpress/wp-content
+
+    # Zip the wordpress directory
+    - name: 🗜️ Compress wordpress directory
+      shell: bash
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        zip -r wordpress.zip wordpress
 
     # Create a Git tag with the environment name and machine-readable date
     - name: 🏷️ Tag version
@@ -107,13 +125,13 @@ runs:
       uses: ncipollo/release-action@v1
       with:
         tag: "${{ steps.tag_version.outputs.new_tag }}"
-        artifacts: "site/*.sql,site/wp-content.zip"
+        artifacts: "site/*.sql,site/wordpress.zip"
         token: ${{ inputs.github_token }}
         makeLatest: true
         name: "${{ inputs.trellis_site_slug }} - ${{ steps.get_date.outputs.human_date }} eject"
         body: |
           # ${{ inputs.from }} eject
 
-          An export of the site's database and wp-content directory from the ${{ inputs.from }} environment.
+          An export of this Trellis-based site's database and files for delivery to traditional WordPress environments.
 
           * 📅 ${{ steps.get_date.outputs.human_date }}
