@@ -1,0 +1,95 @@
+name: '⛵ Audit a Trellis site with Unlighthouse'
+description: 'Audits a Trellis site with Unlighthouse and publishes the result to GitHub Pages'
+
+inputs:
+
+  environment:
+    description: 'The environment to audit'
+    required: true
+
+  trellis_site_slug:
+    description: 'The Trellis site slug'
+    required: true
+
+  trellis_deploy_ssh_private_key:
+    description: 'The SSH private key to use for deployment'
+    required: true
+
+  trellis_deploy_ssh_known_hosts:
+    description: 'The SSH known hosts to use for deployment'
+    required: true
+
+  ansible_vault_password:
+    description: 'The Ansible vault password to use'
+    required: true
+
+  github_token:
+    description: 'The GitHub token to use'
+    required: true
+
+  unlighthouse_config:
+    description: 'The Unlighthouse config to use'
+    required: false
+    default: |
+      export default {
+        scanner: {
+          // Disable robots.txt check
+          robotsTxt: false,
+          // run lighthouse for each URL 3 times
+          samples: 1,
+          // use desktop to scan
+          device: 'desktop',
+        },
+        debug: true,
+      }
+
+runs:
+  using: 'composite'
+
+  steps:
+
+    # Set up known hosts
+    - uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ inputs.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+        known_hosts: ${{ inputs.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+
+    # Set up SSH agent
+    - uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ inputs.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+
+    # install WP-CLI
+    - name: Setup WP-CLI
+      uses: godaddy-wordpress/setup-wp-cli@1
+
+    # Use WP CLI to get the site URL from the deployed site
+    - name: Get site URL
+      shell: bash
+      working-directory: site
+      id: site_url
+      run: |
+        echo "url=$(wp @${{ inputs.environment }} option get home)" >> $GITHUB_OUTPUT
+
+    # Install Unlighthouse and dependencies
+    - name: Install Dependencies
+      shell: bash
+      run: npm install -g @unlighthouse/cli puppeteer
+
+    # Create unlighthouse config file with the contents of the unlighthouse_config input
+    - name: Create Unlighthouse config file
+      shell: bash
+      run: |
+        echo "${{ inputs.unlighthouse_config }}" > unlighthouse.config.js
+
+    # Run Unlighthouse on the URL from the previous step
+    - name: Unlighthouse assertions and client
+      shell: bash
+      run: unlighthouse-ci --site ${{ steps.site_url.outputs.url }} --build-static --config unlighthouse.config.js --router-prefix ${{ github.event.repository.name }}
+
+    # Create a robots.txt file in the .unlighthouse directory to prevent search engines from indexing the results
+    - name: Create robots.txt
+      shell: bash
+      run: |
+        echo "User-agent: *" > .unlighthouse/robots.txt
+        echo "Disallow: /" >> .unlighthouse/robots.txt

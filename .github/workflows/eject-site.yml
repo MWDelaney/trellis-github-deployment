@@ -1,0 +1,44 @@
+# .github/workflows/eject.yml
+##
+# Eject Trellis-based WordPress site for delivery to a traditional WordPress environment
+#
+# Export a Trellis-managed site from a chosen environment
+# for delivery to a traditional WordPress environment
+# and attach artifacts to the workflow run for download
+##
+
+name: ⏏️ Eject site for delivery
+run-name: eject-site
+
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: 'The environment to eject from'
+        required: true
+        type: choice
+        default: production
+        options:
+          - production
+          - staging
+
+jobs:
+  eject-site:
+    runs-on: ubuntu-latest
+    steps:
+
+      # Checkout the repo
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      # Eject site for delivery
+      - uses: ./.github/actions/eject
+        name: Eject site for delivery
+        with:
+          from: ${{ github.event.inputs.from }}
+          trellis_site_slug: ${{ github.event.repository.name }}
+          trellis_deploy_ssh_private_key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+          trellis_deploy_ssh_known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+          working_directory: ./site
+          github_token: ${{ secrets.GITHUB_TOKEN }}

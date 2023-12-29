@@ -66,12 +66,12 @@ runs:
         echo "wp_version=$(wp @"${{ inputs.from }}" core version)" >> $GITHUB_OUTPUT
 
 
-    # If this is the production environment, export the database using wp-cli and pipe it to a local file.
+    # Export the database using wp-cli and pipe it to a local file.
     - name: 🗃️ Export database
       shell: bash
       working-directory: ${{ inputs.working_directory }}
       run: |
-        wp @"${{ inputs.from }}" search-replace app/uploads wp-content/uploads --export > ./"${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}".sql
+        wp @"${{ inputs.from }}" search-replace app/uploads wp-content/uploads --all-tables --export > ./"${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}".sql
 
     # Check that the database export file exists
     - uses: andstor/file-existence-action@v2
@@ -80,6 +80,16 @@ runs:
       with:
         files: "site/${{ inputs.environment }}-*.sql"
         fail: true
+
+    # Trellis puts WordPress in a subdirectory. Find and replace the home and siteurl values in the database export file with the following format:
+    #   'siteurl', 'https://example.com/wp' => 'siteurl', 'https://example.com'
+    #   'home', 'https://example.com/wp' => 'home', 'https://example.com'
+    - name: 🏠 Replace home and siteurl
+      shell: bash
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        sed -i "s|'siteurl', 'https://${{ steps.from_site.outputs.domain }}/wp'|'siteurl', 'https://${{ steps.from_site.outputs.domain }}'|g" ./"${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}".sql
+        sed -i "s|'home', 'https://${{ steps.from_site.outputs.domain }}/wp'|'home', 'https://${{ steps.from_site.outputs.domain }}'|g" ./"${{ inputs.from }}-${{ steps.get_date.outputs.machine_date }}".sql
 
     # Download the version of WordPress that's running in the production environment and unzip it into a new directory named "wordpress"
     - name: 📥 Download WordPress
@@ -97,12 +107,19 @@ runs:
       run: |
         rsync -Laz --progress --delete -e "ssh -o StrictHostKeyChecking=no" "${{ steps.from_site.outputs.ssh_user }}"@"${{ steps.from_site.outputs.domain }}":"${{ steps.from_site.outputs.dir }}"/ ./wp-content
 
+    # Delete the wp-content directry from the freshly downloaded WordPress directory
+    - name: 🗑️ Delete wp-content directory
+      shell: bash
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        rm -rf wordpress/wp-content
+
     # Move the wp-content directory into the wordpress directory, overwriting the default wp-content directory
     - name: 📂 Move wp-content directory
       shell: bash
       working-directory: ${{ inputs.working_directory }}
       run: |
-        mv wp-content wordpress/wp-content
+        mv wp-content wordpress/
 
     # Zip the wordpress directory
     - name: 🗜️ Compress wordpress directory

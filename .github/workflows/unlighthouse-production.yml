@@ -1,0 +1,67 @@
+# .github/workflows/unlighthouse-production.yml
+##
+# Run an Unlighthouse audit on a Trellis environment
+#
+# This workflow will run an Unlighthouse audit on a Trellis environment set in the
+# workflow's environment variables and published to GitHub Pages.
+##
+
+name: ⛵ Unlighthouse Audit Production
+run-name: unlighthouse-audit-production
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every Monday at 8am EST
+    - cron: "0 12 * * 1"
+env:
+  environment: production
+
+# Set permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  unlighthouse:
+    name: Unlighthouse Audit
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+
+      # Checkout the repo
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      # Run the Unlighthouse audit
+      - uses: ./.github/actions/unlighthouse
+        name: Audit with Unlighthouse
+        id: unlighthouse
+        with:
+          environment: ${{ env.environment }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          trellis_site_slug: ${{ github.event.repository.name }}
+          trellis_deploy_ssh_private_key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
+          trellis_deploy_ssh_known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
+
+      # Upload artifact
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          # Upload the results of the Unlighthouse run
+          path: '.unlighthouse'
+
+      # Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3

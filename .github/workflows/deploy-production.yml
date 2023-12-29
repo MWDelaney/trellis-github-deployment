@@ -34,7 +34,7 @@ jobs:
           extra-vars: '""'
           environment: ${{ env.environment }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          trellis_site_slug: ${{ secrets.TRELLIS_SITE_SLUG }}
+          trellis_site_slug: ${{ github.event.repository.name }}
           trellis_deploy_ssh_private_key: ${{ secrets.TRELLIS_DEPLOY_SSH_PRIVATE_KEY }}
           trellis_deploy_ssh_known_hosts: ${{ secrets.TRELLIS_DEPLOY_SSH_KNOWN_HOSTS }}
           ansible_vault_password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}

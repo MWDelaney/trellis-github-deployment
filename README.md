@@ -4,6 +4,9 @@ Automatically deploy your [Trellis](https://roots.io/trellis/)-based WordPress s
 
 🔥 Based on [setup-trellis-cli](https://github.com/roots/setup-trellis-cli). This set of GitHub actions and workflows extend the functionality of that package to more tightly integrate with GitHub's native features.
 
+> [!IMPORTANT]  
+> When upgrading from version 1.x to 2.x, you must update your GitHub secrets to remove the `TRELLIS_SITE_SLUG` secret and confirm that your repository is named after your trellis site slug. For example, if your site slug is `example.com`, your repository must be named `example.com`, per Roots' best practice.
+
 ## Features
 
 - 🚀 **Automatic (or manual) deployment** to `staging` and `production` environments using [GitHub Actions](https://github.com/features/actions) when pull requests are merged to your `staging` and `main` branches respectively.
@@ -21,7 +24,7 @@ Automatically deploy your [Trellis](https://roots.io/trellis/)-based WordPress s
 - 🌱 **Sage 10 build test** on pull request or on-demand (make sure your theme builds before you deploy it!).
 - 🧪 **Dry-run deployments** to `staging` and `production` environments on pull request or on-demand (confirm Trellis can deploy successfully without finalizing the deployment).
 - ⏏️ **Eject WordPress site** from Bedrock and Trellis and prepare database and assets for migration to traditional WordPress hosting.
-
+- ⛵ **Unlighthouse Audit Production** on-demand (or on a schedule) to audit your production site's performance using [Unlighthouse](https://unlighthouse.dev) and publish the results as a GitHub Pages site.
 </details>
 
 ---

@@ -31,7 +31,7 @@ Deployment relies on 4 GitHub secrets:
 Modify and run the following to generate these secrets:
 
 ```bash
-trellis key generate && gh secret set ANSIBLE_VAULT_PASSWORD -b $(cat trellis/.vault_pass) && gh secret set TRELLIS_SITE_SLUG -b example.com
+trellis key generate && gh secret set ANSIBLE_VAULT_PASSWORD -b $(cat trellis/.vault_pass)
 ```
 
 #### Secrets
@@ -39,7 +39,6 @@ trellis key generate && gh secret set ANSIBLE_VAULT_PASSWORD -b $(cat trellis/.v
 * `TRELLIS_DEPLOY_SSH_PRIVATE_KEY` - A private key used by GitHub to connect to your environments.
 * `TRELLIS_DEPLOY_SSH_KNOWN_HOSTS` - `known_hosts` keys for your environments.
 * `ANSIBLE_VAULT_PASSWORD` - Your new Trellis project's [vault password](https://roots.io/trellis/docs/vault/).
-* `TRELLIS_SITE_SLUG` - The slug from your new Trellis project's `wordpress_sites.yml` file.
 
 ### 2. Generate Trellis aliases
 

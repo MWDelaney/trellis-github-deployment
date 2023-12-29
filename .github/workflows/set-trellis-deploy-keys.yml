@@ -64,7 +64,7 @@ jobs:
         run: |
           echo "url=$(wp @"${{ inputs.environment }}" option get home)" >> $GITHUB_OUTPUT
           echo "domain=$(wp @${{ inputs.environment }} option get home | sed 's/https\?:\/\///')" >> $GITHUB_OUTPUT
-          echo "dir=/srv/www/${{ secrets.TRELLIS_SITE_SLUG }}/shared/uploads" >> $GITHUB_OUTPUT
+          echo "dir=/srv/www/${{ github.event.repository.name }}/shared/uploads" >> $GITHUB_OUTPUT
           echo "ssh_user=web" >> $GITHUB_OUTPUT
 
       # Get the contents of the ssh keys in the Trellis project at `trellis/public_keys`
